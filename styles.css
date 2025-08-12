@@ -98,6 +98,40 @@ body {
     width: 100%;
 }
 
+.theme-toggle {
+    background: transparent;
+    border: 2px solid var(--text-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-left: 1rem;
+}
+
+.theme-toggle:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+}
+
+.theme-toggle i {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    transition: var(--transition);
+}
+
+.theme-toggle:hover i {
+    color: var(--white);
+}
+
+[data-theme="dark"] .theme-toggle i::before {
+    content: "\f185";
+}
+
 .hamburger {
     display: none;
     flex-direction: column;
@@ -110,6 +144,10 @@ body {
     background: var(--secondary-color);
     margin: 3px 0;
     transition: var(--transition);
+}
+
+[data-theme="dark"] .hamburger span {
+    background: var(--text-color);
 }
 
 /* Hero Section */
@@ -510,6 +548,39 @@ body {
     }
 }
 
+/* Dark mode specific adjustments */
+[data-theme="dark"] .navbar {
+    background: var(--white);
+}
+
+[data-theme="dark"] .hero {
+    background: linear-gradient(135deg, #0F1419, #1A1F2E);
+}
+
+[data-theme="dark"] .timeline-content,
+[data-theme="dark"] .skill-category,
+[data-theme="dark"] .education-card,
+[data-theme="dark"] .contact-card,
+[data-theme="dark"] .stat-card {
+    background: var(--accent-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .skill-tag {
+    background: var(--white);
+    border-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .skill-tag:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
+
+[data-theme="dark"] .footer {
+    background: var(--secondary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-menu {
@@ -527,6 +598,11 @@ body {
 
     .nav-menu.active {
         left: 0;
+    }
+
+    .theme-toggle {
+        margin-left: auto;
+        margin-right: 1rem;
     }
 
     .hamburger {
