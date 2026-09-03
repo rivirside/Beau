@@ -18,6 +18,9 @@
       #boot p { color: #8e8e93; font-size: 15px; margin: 0 0 20px; }
       #boot button { font: inherit; font-weight: 600; color: #fff; background: #0a84ff;
         border: 0; border-radius: 12px; padding: 15px 22px; width: 100%; max-width: 320px; }
+      #boot pre { display: none; text-align: left; white-space: pre-wrap; word-break: break-word;
+        background: #1c1c1e; color: #ff9f0a; font-size: 12px; line-height: 1.4; padding: 12px;
+        border-radius: 10px; margin: 0 0 20px; max-height: 34vh; overflow: auto; }
     </style>
   </head>
   <body>
@@ -33,15 +36,21 @@
          fails offers a button. It never touches IndexedDB — training data is
          not a cache. -->
     <div id="boot">
-      <h1>Beau could not start</h1>
-      <p>The app's cached files are out of date. Resetting them keeps every workout you have logged.</p>
-      <button id="boot-fix" type="button">Reload the app</button>
+      <h1 id="boot-title">Beau could not start</h1>
+      <p id="boot-msg">Something went wrong while loading.</p>
+      <pre id="boot-detail"></pre>
+      <button id="boot-fix" type="button">Reset cached files and reload</button>
     </div>
 
     <script>
       (function () {
         var KEY = 'beau-heal-attempted'
+        var ERR = 'beau-last-error'
         var healing = false
+
+        function record(text) {
+          try { sessionStorage.setItem(ERR, String(text).slice(0, 600)) } catch (e) {}
+        }
 
         function clearShell() {
           var steps = []
@@ -58,46 +67,67 @@
           return Promise.all(steps)['catch'](function () {})
         }
 
-        function heal(reason) {
+        function reload() {
+          location.replace(location.pathname + '?heal=' + Date.now())
+        }
+
+        function heal(reason, detail) {
           if (healing) return
           healing = true
+          if (detail) record(detail)
           var tried
           try { tried = sessionStorage.getItem(KEY) } catch (e) { tried = null }
-          if (tried) { showFallback(); return }
+          // Only a stale cache is worth clearing. A script that loads and then
+          // throws will throw again, so clearing storage repeatedly is just a
+          // loop that hides the real error.
+          if (tried || reason === 'runtime') { showFallback(reason); return }
           try { sessionStorage.setItem(KEY, reason) } catch (e) {}
-          clearShell().then(function () {
-            location.replace(location.pathname + '?heal=' + Date.now())
-          })
+          clearShell().then(reload)
         }
 
-        function showFallback() {
-          var boot = document.getElementById('boot')
-          if (boot) boot.style.display = 'block'
+        function showFallback(reason) {
+          var stored
+          try { stored = sessionStorage.getItem(ERR) } catch (e) { stored = null }
+          var msg = document.getElementById('boot-msg')
+          var detail = document.getElementById('boot-detail')
+          var fix = document.getElementById('boot-fix')
+          if (reason === 'runtime') {
+            msg.textContent = 'The app loaded but crashed while starting. This is a bug, not your device — the error below says what happened.'
+            fix.textContent = 'Try again'
+          } else {
+            msg.textContent = "The app's files could not be loaded. Resetting the cache keeps every workout you have logged."
+          }
+          if (stored) { detail.textContent = stored; detail.style.display = 'block' }
+          document.getElementById('boot').style.display = 'block'
         }
 
-        // A failed module script is the loudest signal, and it fires before any
-        // timeout would.
+        // A module that fails to parse or throws on execution is the likeliest
+        // cause, and the one a cache reset can never fix.
         window.addEventListener('error', function (e) {
           var t = e.target
-          if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) heal('asset')
+          if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) {
+            heal('asset', 'Failed to load ' + (t.src || t.href))
+          } else if (e.message) {
+            heal('runtime', e.message + (e.filename ? '\n' + e.filename + ':' + e.lineno : ''))
+          }
         }, true)
 
-        // Otherwise: nothing mounted, so assume the shell is stale.
+        window.addEventListener('unhandledrejection', function (e) {
+          heal('runtime', 'Unhandled rejection: ' + (e.reason && e.reason.message || e.reason))
+        })
+
         setTimeout(function () {
           var app = document.getElementById('app')
-          if (!app || app.childElementCount === 0) heal('timeout')
+          if (!app || app.childElementCount === 0) heal('timeout', 'The app never rendered.')
         }, 10000)
 
-        // A clean mount clears the flag, so a future failure can heal again.
         window.__beauMounted = function () {
-          try { sessionStorage.removeItem(KEY) } catch (e) {}
+          try { sessionStorage.removeItem(KEY); sessionStorage.removeItem(ERR) } catch (e) {}
         }
 
         document.getElementById('boot-fix').addEventListener('click', function () {
           try { sessionStorage.removeItem(KEY) } catch (e) {}
-          clearShell().then(function () {
-            location.replace(location.pathname + '?heal=' + Date.now())
-          })
+          clearShell().then(reload)
         })
       })()
     </script>

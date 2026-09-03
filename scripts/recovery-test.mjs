@@ -12,14 +12,23 @@ import { tmpdir } from 'node:os'
 import { createServer } from 'node:http'
 import { extname } from 'node:path'
 
+const mode = process.argv[2] ?? 'missing'
 const dir = mkdtempSync(join(tmpdir(), 'beau-broken-'))
 cpSync('dist', join(dir, 'Beau'), { recursive: true })
 
-// Point the shell at a script that is gone, exactly as a stale cache would.
 const indexPath = join(dir, 'Beau', 'index.html')
 const html = readFileSync(indexPath, 'utf8')
-writeFileSync(indexPath, html.replace(/src="\/Beau\/assets\/index-[^"]+\.js"/,
-  'src="/Beau/assets/index-DELETED0.js"'))
+if (mode === 'missing') {
+  // A stale cached shell: the script it names is gone from the server.
+  writeFileSync(indexPath, html.replace(/src="\/Beau\/assets\/index-[^"]+\.js"/,
+    'src="/Beau/assets/index-DELETED0.js"'))
+} else {
+  // The script loads but throws. Clearing caches can never fix this, so the
+  // guard must say so instead of reloading forever.
+  const name = html.match(/\/Beau\/assets\/(index-[^"]+\.js)/)[1]
+  writeFileSync(join(dir, 'Beau', 'assets', name),
+    'throw new Error("simulated startup crash")')
+}
 
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
                 '.json': 'application/json', '.png': 'image/png', '.webmanifest': 'application/manifest+json' }
@@ -49,16 +58,28 @@ await page.goto('http://localhost:4174/Beau/', { waitUntil: 'domcontentloaded' }
 await page.waitForSelector('#boot', { state: 'visible', timeout: 45000 })
 
 const healed = navigations.some((u) => u.includes('heal='))
-const message = (await page.textContent('#boot h1')).trim()
+const detail = (await page.textContent('#boot-detail')).trim()
+const msg = (await page.textContent('#boot-msg')).trim()
 const hasButton = !!(await page.$('#boot-fix'))
 
+console.log('mode:', mode)
 console.log('navigations:', navigations.length)
-console.log('attempted self-heal:', healed)
-console.log('fallback shown:', JSON.stringify(message), '| button:', hasButton)
+console.log('attempted cache reset:', healed)
+console.log('detail shown:', JSON.stringify(detail.slice(0, 80)))
 
-const ok = healed && message === 'Beau could not start' && hasButton
-console.log(ok ? 'PASS — a dead shell heals once, then offers a way out'
-               : 'FAIL — a dead shell left the user with a white screen')
+let ok = hasButton && detail.length > 0
+if (mode === 'missing') {
+  // A genuinely stale cache is worth clearing exactly once.
+  ok = ok && healed && navigations.length === 2 && /could not be loaded/.test(msg)
+  console.log(ok ? 'PASS — a dead shell resets its cache once, then explains itself'
+                 : 'FAIL — a dead shell did not recover cleanly')
+} else {
+  // A crash must NOT trigger a reload loop: one navigation, and an honest message.
+  ok = ok && !healed && navigations.length === 1 && /crashed while starting/.test(msg)
+       && /simulated startup crash/.test(detail)
+  console.log(ok ? 'PASS — a crash reports the real error without looping'
+                 : 'FAIL — a crash looped or hid its cause')
+}
 
 await browser.close()
 server.close()

@@ -84,5 +84,8 @@ export default defineConfig({
     }),
   ],
   define: { __APP_VERSION__: JSON.stringify(APP_VERSION) },
-  build: { target: 'es2022', sourcemap: true },
+  // Target Safari explicitly rather than a bare ES year: a single unsupported
+  // syntax feature makes the whole module fail to parse, which looks exactly
+  // like a missing file.
+  build: { target: ['es2020', 'safari15'], sourcemap: true },
 })
