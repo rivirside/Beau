@@ -1,4 +1,5 @@
-import type { Movement } from '../types'
+import type { Movement, Variant } from '../types'
+import { enumerateVariants } from '../variants'
 import { CHEST_MOVEMENTS } from './chest'
 import { BACK_MOVEMENTS } from './back'
 import { SHOULDER_MOVEMENTS } from './shoulders'
@@ -18,3 +19,17 @@ export const MOVEMENT_CATALOG: Movement[] = [
 ]
 
 export const movementById = (id: string) => MOVEMENT_CATALOG.find((m) => m.id === id)
+
+export interface IndexedVariant { variant: Variant; movement: Movement }
+
+/** Every variant the catalog can produce, keyed by variant id. Built once and
+ *  reused: the engine looks up contributions on this hot path constantly. */
+export function buildVariantIndex(catalog = MOVEMENT_CATALOG): Map<string, IndexedVariant> {
+  const index = new Map<string, IndexedVariant>()
+  for (const movement of catalog) {
+    for (const variant of enumerateVariants(movement)) {
+      index.set(variant.id, { variant, movement })
+    }
+  }
+  return index
+}

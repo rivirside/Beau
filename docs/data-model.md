@@ -235,9 +235,16 @@ freshness(m, t)  = clamp01(1 − F(m, t) / capacity(m))
   than depending on absolute strength.
 
 Deliberately a transparent rules model, not ML. It is testable, it behaves the
-same for the same inputs, and it can *explain itself* — "chest is 62% recovered,
-18 hard sets two days ago" — which is exactly the kind of legibility the privacy
-positioning implies. All constants live in one tunable file.
+same for the same inputs, and it can *explain itself* — `explainFreshness()`
+returns "Mid chest 86% recovered — 3 sets 3d ago" — which is exactly the kind of
+legibility the privacy positioning implies. All constants live in
+`engine/constants.ts`.
+
+**`halfLifeH` is a half-life, not a full-recovery time.** The first version
+conflated the two, so everything recovered about 2.4× too slowly and the
+generator would have refused to train anything twice a week. A unit test on the
+recovery curve caught it. Roughly three half-lives is practical full recovery:
+chest now reads 88% recovered at 72 hours.
 
 ## 8. Progression
 
@@ -249,8 +256,29 @@ dumbbell press):
 - **Double progression**: hit the top of the rep range on every working set at or
   below target RIR → add the smallest increment the equipment allows. Otherwise
   hold.
-- **Stall → deload**: two or three sessions without progress → drop ~10% and
-  build back.
+- **Stall → deload**: three sessions without progress → drop ~10% and build back.
+- **Unknown is not a stall.** If no set was close enough to failure to estimate
+  an e1RM from, the stall counter holds. Counting "unmeasurable" as "did not
+  improve" deloads a lifter for training too far from failure, which is the
+  opposite of what they need.
+- **Calibration, not nudging.** Beating the top of the rep range by three or
+  more means the weight is simply wrong. The engine inverts Epley through the
+  observed set to the middle of the target range and jumps, capped at 2×.
+- **Rep progression when load cannot move.** A push-up has no heavier version.
+  Where the equipment can produce nothing above the current load, the target
+  reps rise instead — and a deload is never a fraction of zero.
+- **New exercises are seeded from a sibling.** Flat dumbbell press tells you a
+  great deal about incline dumbbell press. Starting every new movement from an
+  empty bar wastes real sessions.
+
+### The cold start is a UX problem, not an algorithm problem
+
+Discovering a working weight by repeated calibration takes weeks, and the
+simulation shows it: a lifter starting from an empty machine is still climbing
+after eight. Tuning the jump constant only trades safety for speed. The right
+answer is to **ask** — an experience level, or a known lift — the way FitBod
+does at onboarding. The calibration path stays as the fallback for exercises the
+user cannot estimate.
 
 ## 9. Generation
 
@@ -266,6 +294,28 @@ Greedy scoring, deterministic, fully offline:
 4. Pick the best, subtract the need it satisfies, repeat until the time or
    volume budget is met.
 5. Fill in sets, reps and load from each variant's progression state.
+
+Three corrections the eight-week simulation forced:
+
+- **Prefer the standard setup.** Some axis modifier almost always flatters the
+  target muscle, so the first generator never once programmed a plain bench
+  press — it always found a fancier variant scoring a hair higher. Non-default
+  axis values now carry a small penalty.
+- **Prefer what the lifter already trains.** Progression is per-variant, so a
+  generator that picks a slightly different variant every session means nothing
+  ever accumulates enough sessions to progress. Familiar variants get a bonus,
+  and the simulation went from 9 sessions on its most-trained exercise to 13.
+- **Stop rather than pad.** Generation used to keep picking while any need
+  remained, ending sessions with exercises satisfying 0.04 of a set. It now
+  stops when the best remaining pick falls below 15% of the session's first.
+
+### Weekly targets are sparse on purpose
+
+46 trainable units is a vocabulary, not a prescription. Most default to **zero**
+weekly sets: the rehab and accessory tail — deep hip rotators, the ankle units,
+neck, subscapularis, supraspinatus — is opt-in, turned on by the user or by an
+injury flag. Otherwise every session becomes a scavenger hunt across muscles
+nobody asked to train.
 
 ## 10. Storage, versioning and export
 

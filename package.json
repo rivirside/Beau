@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/core/**/*.test.ts",
     "validate": "tsx src/core/anatomy/validate.ts",
     "catalog": "tsx src/core/movements/report.ts",
+    "simulate": "tsx src/core/engine/simulate.ts",
     "demo": "tsx src/core/demo.ts",
     "demo:learn": "tsx src/core/learn/demo.ts",
-    "check": "npm run typecheck && npm run validate && npm run catalog"
+    "check": "npm run typecheck && npm run test && npm run validate && npm run catalog"
   },
   "devDependencies": {
     "@types/node": "^26.4.1",

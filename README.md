@@ -21,6 +21,7 @@ a watchOS companion are the reasons this belongs on the platform.
 | `src/core/` | Pure engine types and logic — no DOM, no storage, no framework |
 | `src/core/movements/` | 93 curated movements → 547 variants, plus the coverage report |
 | `src/core/equipment/` | Equipment catalog and load quantisation |
+| `src/core/engine/` | Fatigue, progression, generation — 45 tests and an 8-week simulation |
 | `src/core/anatomy/` | 167 muscles, all 206 bones, 222 landmarks, 59 nerves, 19 joints |
 | `src/core/learn/` | Card generation and FSRS scheduling |
 | `data/` | Vendored exercise dataset and images ([provenance](data/README.md)) |
@@ -39,13 +40,14 @@ Design and data groundwork. No app yet.
 - [ ] Verify anatomy data against a reference — it is `draft`, see anatomy-model.md §6
 - [x] Curated movement catalog (93 movements, every unit covered)
 - [x] Equipment catalog with plate maths and stack quantisation
-- [ ] Fatigue and progression engine
-- [ ] Workout generation
+- [x] Fatigue and progression engine
+- [x] Workout generation
 - [ ] Logging UI, service worker, export
 
 ```sh
 npm install
-npm run check       # typecheck + anatomy graph + movement catalog
+npm run check       # typecheck + tests + anatomy graph + movement catalog
+npm run simulate    # 8 weeks of synthetic training, end to end
 npm run catalog     # per-unit coverage: can every unit actually be trained?
 npm run demo        # configuration actually shifting muscle emphasis
 npm run demo:learn  # anatomy graph, generated cards, rest-timer deck
