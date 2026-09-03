@@ -4,10 +4,16 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "demo": "tsx src/core/demo.ts"
+    "demo": "tsx src/core/demo.ts",
+    "demo:learn": "tsx src/core/learn/demo.ts",
+    "validate": "tsx src/core/anatomy/validate.ts"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "tsx": "^4.19.2"
+    "@types/node": "^26.4.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "ts-fsrs": "^5.4.2"
   }
 }

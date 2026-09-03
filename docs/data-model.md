@@ -73,6 +73,12 @@ the muscle); the three vasti (never selectively trained).
 The UI and weekly volume targets aggregate back up to `region`. The engine works
 at muscle resolution.
 
+These 30-odd muscles are the engine's vocabulary — its **trainable units** — not
+the app's anatomy library. The library is a separate, much larger layer (86
+muscles and growing, with origins, insertions, innervation and actions) that maps
+*into* these units. See [anatomy-model.md](anatomy-model.md) for why the two are
+kept apart and how they connect.
+
 ## 3. Configuration axes
 
 An axis is a dimension along which a movement's setup can vary. The axis
@@ -264,9 +270,10 @@ the long tail of "Bosu Ball Cable Crunch With Side Bends."
 
 ## 12. Open questions
 
-1. **Muscle granularity.** ~30 muscles is a bet that head-level resolution is
-   what makes recommendations feel smart. It can be collapsed to ~17 later far
-   more easily than it can be expanded.
+1. **Muscle granularity.** ~30 trainable units is a bet that head-level
+   resolution is what makes recommendations feel smart. It can be collapsed to
+   ~17 later far more easily than it can be expanded. (The anatomy library is
+   free to be far larger — that is the point of keeping the layers separate.)
 2. **Bodyweight load.** Push-ups and dips need a per-movement leverage factor
    (fraction of bodyweight actually moved) for volume math to mean anything.
 3. **Cardio and mobility.** Out of scope for now. The schema should not preclude
