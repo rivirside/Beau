@@ -54,7 +54,7 @@ export const GENERATION = {
   minutesPerSet: 3.2,
   /** Score penalty per non-default axis value, so the plain version of a
    *  movement wins unless a variant is genuinely better for today. */
-  configurationPenalty: 0.04,
+  configurationPenalty: 0.12,
   /** Bonus for a variant already in the lifter's history. Progression is
    *  per-variant, so without continuity nothing accumulates sessions. */
   familiarityBonus: 1.35,

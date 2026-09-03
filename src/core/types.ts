@@ -101,7 +101,8 @@ export interface WorkoutEntry {
   order: number
   /** What the engine proposed, kept alongside what happened, so the engine can
    *  be evaluated against reality later. */
-  prescribed?: { sets: number; repRange: [number, number]; targetKg: number | null; targetRir: number }
+  prescribed?: { sets: number; repRange: [number, number]; targetKg: number | null;
+                 targetRir: number; firstTime?: boolean }
   sets: SetLog[]
   /** Set when the user swapped away from a generated pick — training signal. */
   substitutedFromVariantId?: string

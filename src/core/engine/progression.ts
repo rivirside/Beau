@@ -116,6 +116,10 @@ export interface Prescription {
   display: string
   /** Why this weight — surfaced in the UI so the number is never mysterious. */
   rationale: string
+  /** No history and no sibling to seed from. The number here is a placeholder
+   *  the UI should replace with a blank the lifter fills in: asking beats
+   *  discovering a working weight over weeks of calibration. */
+  firstTime?: true
 }
 
 /** Double progression: earn the top of the rep range on every set, then the
@@ -154,7 +158,9 @@ export function prescribe(
     const resolved = resolveLoad(loading, 0, unit, opts.bodyweightKg)
     return {
       sets, repRange, targetKg: resolved.kg, targetRir, display: resolved.display,
-      rationale: 'First time — start light and let the next session calibrate.',
+      firstTime: true,
+      rationale: `First time — enter a weight you could do for about ${repRange.max} reps. ` +
+                 'Beau calibrates from there.',
     }
   }
 

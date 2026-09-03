@@ -30,7 +30,8 @@ export function entryFor(
   return {
     id: crypto.randomUUID(), variantId: pick.variant.id, order,
     prescribed: { sets: p.sets, repRange: [p.repRange.min, p.repRange.max],
-                  targetKg: p.targetKg, targetRir: p.targetRir },
+                  targetKg: p.targetKg, targetRir: p.targetRir,
+                  ...(p.firstTime ? { firstTime: true } : {}) },
     sets: [],
   }
 }

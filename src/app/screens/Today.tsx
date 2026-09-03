@@ -213,7 +213,7 @@ export function Today() {
               </div>
             </div>
             <p style="margin:6px 0 2px">
-              {p.sets}×{p.repRange.min}–{p.repRange.max} @ {p.targetKg ? fmtWeight(p.targetKg, app.profile.displayUnit) : 'bodyweight'} · RIR {p.targetRir}
+              {p.sets}×{p.repRange.min}–{p.repRange.max} @ {p.firstTime ? 'your call' : p.targetKg ? fmtWeight(p.targetKg, app.profile.displayUnit) : 'bodyweight'} · RIR {p.targetRir}
             </p>
             <p class="tiny" style="margin:0">{pick.rationale}</p>
             <p class="tiny" style="margin:2px 0 0;opacity:.8">{p.rationale}</p>

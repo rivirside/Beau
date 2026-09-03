@@ -161,3 +161,10 @@ test('a new variant is seeded from a sibling rather than an empty bar', () => {
   assert.ok(seeded.targetKg < 80)
   assert.match(seeded.rationale, /similar exercise/)
 })
+
+test('only a truly cold start is flagged firstTime', () => {
+  assert.equal(prescribe(undefined, undefined, DB).firstTime, true)
+  assert.equal(prescribe(undefined, undefined, DB, { seedFromKg: 40 }).firstTime, undefined)
+  const state = applySession(undefined, 'v', sets(20, 8), '2026-01-15T18:00:00.000Z')
+  assert.equal(prescribe(state, sets(20, 8), DB).firstTime, undefined)
+})

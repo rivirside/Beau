@@ -79,7 +79,8 @@ export function Session() {
             {target && (
               <p class="tiny" style="margin:4px 0 10px">
                 {target.sets}×{target.repRange[0]}–{target.repRange[1]} @{' '}
-                {target.targetKg ? fmtWeight(target.targetKg, unit) : 'bodyweight'}
+                {target.firstTime ? 'your call — first time'
+                  : target.targetKg ? fmtWeight(target.targetKg, unit) : 'bodyweight'}
                 {' '}· RIR {target.targetRir}
               </p>
             )}
@@ -87,8 +88,9 @@ export function Session() {
             {Array.from({ length: rows }, (_, i) => {
               const done = entry.sets[i]
               const k = keyFor(entry.id, i)
+              const cold = target?.firstTime === true
               const d = draft[k] ?? {
-                w: target?.targetKg
+                w: target?.targetKg && !cold
                   ? String(Math.round(toDisplay(target.targetKg, unit) * 2) / 2) : '',
                 r: '', rir: String(target?.targetRir ?? 2),
               }
@@ -114,7 +116,8 @@ export function Session() {
               return (
                 <div class="set-row" key={i} style={isNext ? '' : 'opacity:0.4'}>
                   <span class="n">{i + 1}</span>
-                  <input type="number" inputMode="decimal" placeholder={unit} value={d.w}
+                  <input type="number" inputMode="decimal"
+                         placeholder={target?.firstTime && isNext ? 'weight?' : unit} value={d.w}
                          disabled={!isNext}
                          onInput={(e) => setDraft({ ...draft,
                            [k]: { ...d, w: (e.target as HTMLInputElement).value } })} />

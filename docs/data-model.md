@@ -275,10 +275,18 @@ dumbbell press):
 
 Discovering a working weight by repeated calibration takes weeks, and the
 simulation shows it: a lifter starting from an empty machine is still climbing
-after eight. Tuning the jump constant only trades safety for speed. The right
-answer is to **ask** — an experience level, or a known lift — the way FitBod
-does at onboarding. The calibration path stays as the fallback for exercises the
-user cannot estimate.
+after eight. Tuning the jump constant only trades safety for speed. So the app
+**asks**: a prescription with no history and no sibling to seed from is flagged
+`firstTime`, and the session screen leaves the weight blank with a prompt
+("enter a weight you could do for about 10 reps") instead of prefilling an empty
+bar. Whatever the lifter types becomes the baseline; calibration takes over from
+the second session. Sibling-seeded first attempts are not flagged — a guess from
+a related exercise is worth prefilling.
+
+The configuration penalty is **0.12**, measured rather than guessed: at 0.04 a
+third of picks were tweaked variants, at 0.12 two of twenty-nine, and those two
+were cases where a modifier genuinely targets an owed muscle. At 0.16 the axes
+stop mattering at all.
 
 ## 9. Generation
 
