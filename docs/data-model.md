@@ -290,14 +290,39 @@ Its limits are exactly the ones this model exists to fix: 17 coarse muscles, one
 flat equipment string, and configuration baked into names (`"Low Cable
 Crossover"`) rather than expressed as data.
 
-**Recommended approach — curate, don't convert.** Hand-author ~120–150 movements
-with real contribution vectors and axis modifiers: that covers essentially
-everything anyone programs. Import the remaining ~700 as loggable-only entries
-with coarse muscle mappings — searchable, logged, counted toward volume, but not
-auto-prescribed. Trying to author axis modifiers for all 876 is weeks of work for
-the long tail of "Bosu Ball Cable Crunch With Side Bends."
+**Curate, don't convert.** `src/core/movements/` holds **93 curated movements**
+with real contribution vectors and axis modifiers, expanding to **547 variants**.
+The remaining ~780 vendor entries stay `source: 'imported'` — searchable,
+loggable, counted toward volume, but never auto-prescribed. Authoring axis
+modifiers for all 876 would be weeks spent on the long tail of "Bosu Ball Cable
+Crunch With Side Bends."
 
-## 12. Open questions
+## 12. The catalog adjudicates the unit list
+
+A trainable unit is only real if some movement can target it. A unit with no
+prime mover is one the generator can never satisfy: it accumulates volume debt
+forever and quietly distorts every session it touches.
+
+`npm run catalog` reports, for every unit, its peak contribution across all 547
+variants and how many movements reach it. It is the arbiter, and it has already
+overruled a judgement call:
+
+- **`teres_major` was an orphan** — peak 0.70, no prime mover. It shares all
+  three of the lats' actions and nothing in the catalog shifts the ratio between
+  them, so it was folded into `lats`. 47 units → 46.
+- Nine movements used axes their equipment could not express (`foot_rotation` on
+  leg curl machines that only declared `grip_orientation`, `rom_bias` on a
+  barbell). The validator now rejects that combination outright.
+
+Eight units remain **thin** — a single prime mover each. That is reported but
+not an error, because for several of them one movement is the honest answer: the
+seated calf raise *is* the soleus movement, cable internal rotation *is* the
+subscapularis movement. `toe_flexors` is the weakest of the eight, and worth
+naming honestly: `toe_curl` was written partly to give it a route to load, which
+makes its survival somewhat circular. It stays because foot and plantar-fascia
+work is genuinely programmed, but it is the first unit to cut.
+
+## 13. Open questions
 
 1. **Muscle granularity.** 47 trainable units is a bet that action-level
    resolution is what makes recommendations feel smart. The binding constraint
