@@ -3,16 +3,105 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f1115" />
+    <meta name="theme-color" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="Adaptive strength training. Everything stays on your phone." />
     <title>Beau</title>
     <link rel="icon" href="icon-192.png" />
     <link rel="apple-touch-icon" href="icon-192.png" />
+    <style>
+      html, body { margin: 0; background: #000; color: #fff;
+        font: 17px/1.4 -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
+      #boot { display: none; padding: 22vh 24px 0; text-align: center; }
+      #boot h1 { font-size: 20px; margin: 0 0 8px; }
+      #boot p { color: #8e8e93; font-size: 15px; margin: 0 0 20px; }
+      #boot button { font: inherit; font-weight: 600; color: #fff; background: #0a84ff;
+        border: 0; border-radius: 12px; padding: 15px 22px; width: 100%; max-width: 320px; }
+    </style>
   </head>
   <body>
     <div id="app"></div>
+
+    <!-- Recovery shell.
+         The service worker serves a precached index.html for every navigation.
+         When several deploys land in quick succession, that cached shell can
+         point at a hashed script the server has already replaced, so the HTML
+         loads and the script 404s: a white screen with no way back, because the
+         in-app "Reload latest" button lives inside the app that will not start.
+         This runs before any module, heals once automatically, and if that
+         fails offers a button. It never touches IndexedDB — training data is
+         not a cache. -->
+    <div id="boot">
+      <h1>Beau could not start</h1>
+      <p>The app's cached files are out of date. Resetting them keeps every workout you have logged.</p>
+      <button id="boot-fix" type="button">Reload the app</button>
+    </div>
+
+    <script>
+      (function () {
+        var KEY = 'beau-heal-attempted'
+        var healing = false
+
+        function clearShell() {
+          var steps = []
+          if (navigator.serviceWorker) {
+            steps.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+              return Promise.all(rs.map(function (r) { return r.unregister() }))
+            }))
+          }
+          if (window.caches) {
+            steps.push(caches.keys().then(function (ks) {
+              return Promise.all(ks.map(function (k) { return caches.delete(k) }))
+            }))
+          }
+          return Promise.all(steps)['catch'](function () {})
+        }
+
+        function heal(reason) {
+          if (healing) return
+          healing = true
+          var tried
+          try { tried = sessionStorage.getItem(KEY) } catch (e) { tried = null }
+          if (tried) { showFallback(); return }
+          try { sessionStorage.setItem(KEY, reason) } catch (e) {}
+          clearShell().then(function () {
+            location.replace(location.pathname + '?heal=' + Date.now())
+          })
+        }
+
+        function showFallback() {
+          var boot = document.getElementById('boot')
+          if (boot) boot.style.display = 'block'
+        }
+
+        // A failed module script is the loudest signal, and it fires before any
+        // timeout would.
+        window.addEventListener('error', function (e) {
+          var t = e.target
+          if (t && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')) heal('asset')
+        }, true)
+
+        // Otherwise: nothing mounted, so assume the shell is stale.
+        setTimeout(function () {
+          var app = document.getElementById('app')
+          if (!app || app.childElementCount === 0) heal('timeout')
+        }, 10000)
+
+        // A clean mount clears the flag, so a future failure can heal again.
+        window.__beauMounted = function () {
+          try { sessionStorage.removeItem(KEY) } catch (e) {}
+        }
+
+        document.getElementById('boot-fix').addEventListener('click', function () {
+          try { sessionStorage.removeItem(KEY) } catch (e) {}
+          clearShell().then(function () {
+            location.replace(location.pathname + '?heal=' + Date.now())
+          })
+        })
+      })()
+    </script>
+
     <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>

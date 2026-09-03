@@ -41,5 +41,12 @@ function App() {
   )
 }
 
-initServiceWorker()
+declare global { interface Window { __beauMounted?: () => void } }
+
+// A throw here must never stop the app rendering: the service worker is an
+// enhancement, and a broken one is exactly when you most need the UI.
+try { initServiceWorker() } catch (err) { console.error('service worker registration failed', err) }
+
 render(<App />, document.getElementById('app')!)
+// Tells the recovery shell in index.html that the app is alive.
+window.__beauMounted?.()

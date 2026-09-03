@@ -15,7 +15,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "smoke": "node scripts/smoke.mjs",
-    "check:svg": "node scripts/check-svg.mjs"
+    "check:svg": "node scripts/check-svg.mjs",
+    "check:recovery": "node scripts/recovery-test.mjs"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.6",
