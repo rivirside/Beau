@@ -28,7 +28,7 @@ a watchOS companion are the reasons this belongs on the platform.
 
 Design and data groundwork. No app yet.
 
-- [x] Muscle, equipment and configuration taxonomy
+- [x] Muscle, equipment and configuration taxonomy (47 trainable units)
 - [x] Movement → variant resolution, with worked examples
 - [x] Seed dataset: 876 exercises, 1,746 photos (public domain)
 - [x] Anatomy graph: attachments, innervation, actions, derived antagonists

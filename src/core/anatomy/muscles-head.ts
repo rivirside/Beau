@@ -324,7 +324,7 @@ export const HEAD_NECK_MUSCLES: AnatomicalMuscle[] = [
   /* --------------------------------------------------------- prevertebral */
   {
     id: 'longus_colli', name: 'Longus colli', latin: 'Musculus longus colli',
-    region: 'neck', group: 'prevertebral',
+    region: 'neck', group: 'prevertebral', trainableUnitId: 'neck_flexors',
     origin: [at('cervical_bodies_c3_t3')],
     insertion: [at('atlas_anterior_tubercle'), at('c3_c6_transverse')],
     innervation: [inn('cervical_rami', ['C2', 'C3', 'C4', 'C5'])],
@@ -334,7 +334,7 @@ export const HEAD_NECK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'longus_capitis', name: 'Longus capitis', latin: 'Musculus longus capitis',
-    region: 'neck', group: 'prevertebral',
+    region: 'neck', group: 'prevertebral', trainableUnitId: 'neck_flexors',
     origin: [at('c3_c6_transverse')], insertion: [at('basilar_occipital')],
     innervation: [inn('cervical_rami', ['C1', 'C2', 'C3'])],
     actions: [act('atlanto_occipital', 'flexion')],
@@ -343,6 +343,7 @@ export const HEAD_NECK_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'rectus_capitis_anterior', name: 'Rectus capitis anterior',
     latin: 'Musculus rectus capitis anterior', region: 'neck', group: 'prevertebral',
+    trainableUnitId: 'neck_flexors',
     origin: [at('atlas_lateral_mass')], insertion: [at('basilar_occipital')],
     innervation: [inn('cervical_rami', ['C1', 'C2'])],
     actions: [act('atlanto_occipital', 'flexion')],

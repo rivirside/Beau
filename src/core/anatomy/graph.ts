@@ -8,6 +8,7 @@ import { MUSCLE_LIBRARY } from './index'
 import { LANDMARKS, JOINTS } from './skeleton'
 import { BONES, TOTAL_BONE_COUNT } from './bones'
 import { NERVES } from './nerves'
+import { MUSCLES } from '../taxonomy/muscles'
 
 const key = (a: Pick<MuscleAction, 'joint' | 'action'>) => `${a.joint}:${a.action}`
 
@@ -98,6 +99,54 @@ export function musclesForTrainableUnit(unitId: string, library = MUSCLE_LIBRARY
     m.trainableUnitId === unitId || m.heads?.some((h) => h.trainableUnitId === unitId))
 }
 
+/** Trainable units whose member muscles pull in directly opposite directions at
+ *  the same joint. This is the check that would have caught the rotator cuff
+ *  sharing one unit between its external and internal rotators: training face
+ *  pulls was registering as fatigue on subscapularis. Assist roles are ignored —
+ *  only prime movers count as a genuine collision. */
+export const ACCEPTED_COLLISIONS: Record<string, string> = {
+  'forearm_extensors: Extensor carpi radialis longus vs Extensor carpi ulnaris':
+    'Both are prime wrist extensors whose deviation components oppose and largely '
+  + 'cancel in the extension work anyone actually programs. Splitting out radial '
+  + 'and ulnar deviators would add four units for a grip-sport and wrist-rehab '
+  + 'niche. Revisit if isolated deviation work is ever programmed.',
+}
+
+export function antagonistCollisions(library = MUSCLE_LIBRARY): string[] {
+  const problems: string[] = []
+  const units = new Map<string, AnatomicalMuscle[]>()
+  for (const m of library) {
+    if (!m.trainableUnitId) continue
+    const list = units.get(m.trainableUnitId)
+    if (list) list.push(m)
+    else units.set(m.trainableUnitId, [m])
+  }
+
+  for (const [unit, muscles] of units) {
+    const primes = new Map<string, string>()   // "joint:action" -> muscle name
+    for (const m of muscles) {
+      for (const a of m.actions) {
+        if (a.role !== 'prime') continue
+        primes.set(key(a), m.name)
+      }
+    }
+    const seen = new Set<string>()
+    for (const [k, name] of primes) {
+      const [joint, action] = k.split(':') as [string, JointActionName]
+      const opposite = OPPOSING_ACTIONS[action]
+      if (!opposite) continue
+      const other = primes.get(`${joint}:${opposite}`)
+      if (!other || other === name) continue
+      const pair = [name, other].sort().join(' vs ')
+      if (seen.has(pair)) continue
+      seen.add(pair)
+      if (ACCEPTED_COLLISIONS[`${unit}: ${pair}`]) continue
+      problems.push(`${unit}: ${pair} — ${action} against ${opposite} at ${joint}`)
+    }
+  }
+  return problems
+}
+
 /** Referential integrity over the whole graph. Run in tests: a dangling
  *  landmark id silently produces a card with a blank answer. */
 export function validateGraph(library = MUSCLE_LIBRARY): string[] {
@@ -151,6 +200,17 @@ export function validateGraph(library = MUSCLE_LIBRARY): string[] {
   }
   if (TOTAL_BONE_COUNT !== 206) {
     errors.push(`skeleton totals ${TOTAL_BONE_COUNT} bones, expected 206`)
+  }
+
+  // A trainable unit with no anatomical muscle behind it is a phantom the
+  // engine would happily assign volume targets to.
+  const mapped = new Set<string>()
+  for (const m of library) {
+    if (m.trainableUnitId) mapped.add(m.trainableUnitId)
+    for (const h of m.heads ?? []) if (h.trainableUnitId) mapped.add(h.trainableUnitId)
+  }
+  for (const unit of Object.keys(MUSCLES)) {
+    if (!mapped.has(unit)) errors.push(`trainable unit "${unit}" has no anatomical muscle`)
   }
   return errors
 }

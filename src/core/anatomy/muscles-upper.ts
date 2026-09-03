@@ -112,7 +112,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'supraspinatus', name: 'Supraspinatus', latin: 'Musculus supraspinatus',
-    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'supraspinatus',
     origin: [at('supraspinous_fossa')],
     insertion: [at('greater_tubercle', 'superior facet')],
     innervation: [inn('suprascapular', ['C5', 'C6'])],
@@ -123,7 +123,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'infraspinatus', name: 'Infraspinatus', latin: 'Musculus infraspinatus',
-    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'cuff_ext_rotators',
     origin: [at('infraspinous_fossa')],
     insertion: [at('greater_tubercle', 'middle facet')],
     innervation: [inn('suprascapular', ['C5', 'C6'])],
@@ -133,7 +133,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'teres_minor', name: 'Teres minor', latin: 'Musculus teres minor',
-    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'cuff_ext_rotators',
     origin: [at('scapula_lateral_border', 'upper two-thirds')],
     insertion: [at('greater_tubercle', 'inferior facet')],
     innervation: [inn('axillary', ['C5', 'C6'])],
@@ -142,7 +142,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'subscapularis', name: 'Subscapularis', latin: 'Musculus subscapularis',
-    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'subscapularis',
     origin: [at('subscapular_fossa')], insertion: [at('lesser_tubercle')],
     innervation: [inn('upper_subscapular', ['C5', 'C6']), inn('lower_subscapular', ['C5', 'C6'])],
     actions: [act('glenohumeral', 'internal_rotation'), act('glenohumeral', 'adduction', 'assist')],

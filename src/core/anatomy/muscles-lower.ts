@@ -88,7 +88,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* -------------------------------------------------------- deep hip rotators */
   {
     id: 'piriformis', name: 'Piriformis', latin: 'Musculus piriformis',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('anterior_sacroiliac')], insertion: [at('greater_trochanter', 'superior border')],
     innervation: [inn('nerve_to_piriformis', ['S1', 'S2'])],
     actions: [act('hip', 'external_rotation'),
@@ -98,7 +98,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'obturator_internus', name: 'Obturator internus', latin: 'Musculus obturator internus',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('obturator_membrane', 'internal surface'), at('obturator_foramen')],
     insertion: [at('greater_trochanter', 'medial surface')],
     innervation: [inn('nerve_to_obturator_internus', ['L5', 'S1', 'S2'])],
@@ -107,7 +107,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'obturator_externus', name: 'Obturator externus', latin: 'Musculus obturator externus',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('obturator_membrane', 'external surface')],
     insertion: [at('trochanteric_fossa')],
     innervation: [inn('obturator', ['L3', 'L4'])],
@@ -116,7 +116,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'gemellus_superior', name: 'Superior gemellus', latin: 'Musculus gemellus superior',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('ischial_spine')], insertion: [at('greater_trochanter', 'medial surface')],
     innervation: [inn('nerve_to_obturator_internus', ['L5', 'S1', 'S2'])],
     actions: [act('hip', 'external_rotation')],
@@ -124,7 +124,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'gemellus_inferior', name: 'Inferior gemellus', latin: 'Musculus gemellus inferior',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('ischial_tuberosity')], insertion: [at('greater_trochanter', 'medial surface')],
     innervation: [inn('nerve_to_quadratus_femoris', ['L4', 'L5', 'S1'])],
     actions: [act('hip', 'external_rotation')],
@@ -132,7 +132,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'quadratus_femoris', name: 'Quadratus femoris', latin: 'Musculus quadratus femoris',
-    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'glute_med_min',
+    region: 'hip', group: 'deep hip rotators', trainableUnitId: 'hip_ext_rotators',
     origin: [at('ischial_tuberosity', 'lateral border')],
     insertion: [at('intertrochanteric_crest', 'quadrate tubercle')],
     innervation: [inn('nerve_to_quadratus_femoris', ['L4', 'L5', 'S1'])],
@@ -169,7 +169,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'adductor_magnus', name: 'Adductor magnus', latin: 'Musculus adductor magnus',
-    region: 'thigh', group: 'adductors', trainableUnitId: 'adductors',
+    region: 'thigh', group: 'adductors', trainableUnitId: 'adductor_magnus',
     origin: [at('pubic_ramus_inferior', 'adductor part'), at('ischial_ramus'),
              at('ischial_tuberosity', 'hamstring part')],
     insertion: [at('linea_aspera', 'adductor part'), at('adductor_tubercle', 'hamstring part')],
@@ -236,7 +236,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* -------------------------------------------------------------- hamstrings */
   {
     id: 'biceps_femoris', name: 'Biceps femoris', latin: 'Musculus biceps femoris',
-    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hamstrings', palpable: true,
+    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hams_lateral', palpable: true,
     origin: [at('ischial_tuberosity', 'long head'),
              at('linea_aspera', 'short head'), at('lateral_supracondylar_line', 'short head')],
     insertion: [at('fibula_head')],
@@ -249,7 +249,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'semitendinosus', name: 'Semitendinosus', latin: 'Musculus semitendinosus',
-    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hamstrings',
+    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hams_medial',
     origin: [at('ischial_tuberosity')], insertion: [at('pes_anserinus')],
     innervation: [inn('tibial', ['L5', 'S1', 'S2'])],
     actions: [act('knee', 'flexion'), act('hip', 'extension'),
@@ -258,7 +258,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'semimembranosus', name: 'Semimembranosus', latin: 'Musculus semimembranosus',
-    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hamstrings',
+    region: 'thigh', group: 'hamstrings', trainableUnitId: 'hams_medial',
     origin: [at('ischial_tuberosity')],
     insertion: [at('tibia_medial_condyle', 'posterior aspect')],
     innervation: [inn('tibial', ['L5', 'S1', 'S2'])],
@@ -300,7 +300,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'popliteus', name: 'Popliteus', latin: 'Musculus popliteus',
-    region: 'leg', trainableUnitId: 'hamstrings',
+    region: 'leg', trainableUnitId: 'hams_medial',
     origin: [at('femur_condyle_lateral')], insertion: [at('tibia_shaft_posterior', 'above the soleal line')],
     innervation: [inn('tibial', ['L4', 'L5', 'S1'])],
     actions: [act('knee', 'internal_rotation', 'prime', 'of the tibia; "unlocks" the extended knee'),
@@ -343,7 +343,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'fibularis_tertius', name: 'Fibularis tertius', latin: 'Musculus fibularis tertius',
-    region: 'leg', compartment: 'anterior leg', trainableUnitId: 'tibialis_ant',
+    region: 'leg', compartment: 'anterior leg', trainableUnitId: 'ankle_evertors',
     origin: [at('fibula_shaft_lateral', 'distal anterior')], insertion: [at('metatarsal_5_base')],
     innervation: [inn('deep_fibular', ['L5', 'S1'])],
     actions: [act('ankle', 'dorsiflexion', 'assist'), act('subtalar', 'eversion', 'assist')],
@@ -353,7 +353,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* ------------------------------------------------------- lateral compartment */
   {
     id: 'fibularis_longus', name: 'Fibularis longus', latin: 'Musculus fibularis longus',
-    region: 'leg', compartment: 'lateral leg', trainableUnitId: 'calves_soleus',
+    region: 'leg', compartment: 'lateral leg', trainableUnitId: 'ankle_evertors',
     origin: [at('fibula_head'), at('fibula_shaft_lateral', 'proximal two-thirds')],
     insertion: [at('medial_cuneiform'), at('metatarsal_1_base')],
     innervation: [inn('superficial_fibular', ['L5', 'S1', 'S2'])],
@@ -363,7 +363,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'fibularis_brevis', name: 'Fibularis brevis', latin: 'Musculus fibularis brevis',
-    region: 'leg', compartment: 'lateral leg', trainableUnitId: 'calves_soleus',
+    region: 'leg', compartment: 'lateral leg', trainableUnitId: 'ankle_evertors',
     origin: [at('fibula_shaft_lateral', 'distal two-thirds')],
     insertion: [at('metatarsal_5_base', 'tuberosity')],
     innervation: [inn('superficial_fibular', ['L5', 'S1', 'S2'])],
@@ -374,7 +374,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* --------------------------------------------------- deep posterior compartment */
   {
     id: 'tibialis_posterior', name: 'Tibialis posterior', latin: 'Musculus tibialis posterior',
-    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'calves_soleus',
+    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'ankle_invertors',
     origin: [at('tibia_shaft_posterior'), at('fibula_shaft_posterior'),
              at('interosseous_membrane_leg')],
     insertion: [at('navicular'), at('cuneiforms'), at('metatarsals_2_4_base')],
@@ -386,7 +386,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_digitorum_longus_foot', name: 'Flexor digitorum longus',
     latin: 'Musculus flexor digitorum longus',
-    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'calves_soleus',
+    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'toe_flexors',
     origin: [at('tibia_shaft_posterior', 'below the soleal line')],
     insertion: [at('phalanges_distal_foot', 'digits 2–5')],
     innervation: [inn('tibial', ['L5', 'S1'])],
@@ -397,7 +397,7 @@ export const LOWER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_hallucis_longus', name: 'Flexor hallucis longus',
     latin: 'Musculus flexor hallucis longus',
-    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'calves_soleus',
+    region: 'leg', compartment: 'deep posterior leg', trainableUnitId: 'toe_flexors',
     origin: [at('fibula_shaft_posterior', 'distal two-thirds'), at('interosseous_membrane_leg')],
     insertion: [at('hallux_distal')],
     innervation: [inn('tibial', ['L5', 'S1', 'S2'])],

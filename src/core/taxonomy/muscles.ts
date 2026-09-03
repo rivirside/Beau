@@ -22,7 +22,12 @@ export const MUSCLES = {
   delt_front:         { region: 'shoulders', name: 'Front delt',         halfLifeH: 54 },
   delt_lateral:       { region: 'shoulders', name: 'Side delt',          halfLifeH: 42 },
   delt_rear:          { region: 'shoulders', name: 'Rear delt',          halfLifeH: 42 },
-  rotator_cuff:       { region: 'shoulders', name: 'Rotator cuff',       halfLifeH: 36 },
+  // The cuff is three units, not one: infraspinatus/teres minor externally
+  // rotate and subscapularis internally rotates. Sharing a unit meant face
+  // pulls registered as fatiguing internal rotation.
+  supraspinatus:      { region: 'shoulders', name: 'Supraspinatus',      halfLifeH: 36 },
+  cuff_ext_rotators:  { region: 'shoulders', name: 'Cuff (ext. rotators)', halfLifeH: 36 },
+  subscapularis:      { region: 'shoulders', name: 'Subscapularis',      halfLifeH: 36 },
 
   biceps_long:        { region: 'arms',      name: 'Biceps long head',   halfLifeH: 48 },
   biceps_short:       { region: 'arms',      name: 'Biceps short head',  halfLifeH: 48 },
@@ -36,19 +41,40 @@ export const MUSCLES = {
 
   quads_rf:           { region: 'legs',      name: 'Rectus femoris',     halfLifeH: 66 },
   quads_vasti:        { region: 'legs',      name: 'Vasti',              halfLifeH: 72 },
-  hamstrings:         { region: 'legs',      name: 'Hamstrings',         halfLifeH: 72 },
+  // Split: only the long head of biceps femoris crosses the hip, so an RDL and
+  // a leg curl do not train the same thing. Tibial rotation (toes in/out on
+  // curls) biases medial against lateral, which the config axes can express.
+  hams_lateral:       { region: 'legs',      name: 'Hamstrings (lateral)', halfLifeH: 72 },
+  hams_medial:        { region: 'legs',      name: 'Hamstrings (medial)',  halfLifeH: 72 },
   glute_max:          { region: 'legs',      name: 'Glute max',          halfLifeH: 66 },
   glute_med_min:      { region: 'legs',      name: 'Glute med/min',      halfLifeH: 48 },
+  // The deep six are external rotators, not abductors. Clamshells and hip
+  // airplanes are not abduction volume.
+  hip_ext_rotators:   { region: 'legs',      name: 'Deep hip rotators',  halfLifeH: 42 },
   adductors:          { region: 'legs',      name: 'Adductors',          halfLifeH: 60 },
+  // Adductor magnus is one of the largest hip extensors. Squats hammer it;
+  // the adduction machine barely touches it.
+  adductor_magnus:    { region: 'legs',      name: 'Adductor magnus',    halfLifeH: 66 },
   hip_flexors:        { region: 'legs',      name: 'Hip flexors',        halfLifeH: 48 },
   calves_gastroc:     { region: 'legs',      name: 'Gastrocnemius',      halfLifeH: 36 },
   calves_soleus:      { region: 'legs',      name: 'Soleus',             halfLifeH: 36 },
-  tibialis_ant:       { region: 'legs',      name: 'Tibialis anterior',  halfLifeH: 36 },
+  tibialis_ant:       { region: 'legs',      name: 'Dorsiflexors',       halfLifeH: 36 },
+  // Evertors and invertors are antagonists; they had been sharing the soleus
+  // unit with the plantarflexors.
+  ankle_evertors:     { region: 'legs',      name: 'Ankle evertors',     halfLifeH: 36 },
+  ankle_invertors:    { region: 'legs',      name: 'Ankle invertors',    halfLifeH: 36 },
+  toe_flexors:        { region: 'legs',      name: 'Toe flexors',        halfLifeH: 30 },
 
   rectus_abdominis:   { region: 'core',      name: 'Abs',                halfLifeH: 42 },
   obliques:           { region: 'core',      name: 'Obliques',           halfLifeH: 42 },
+  quadratus_lumborum: { region: 'core',      name: 'Quadratus lumborum', halfLifeH: 48 },
+  // Bracing and anti-rotation work — TVA and the segmental stabilisers — is a
+  // different stimulus from crunches and from spinal extension.
+  deep_core:          { region: 'core',      name: 'Deep core',          halfLifeH: 42 },
 
-  neck:               { region: 'neck',      name: 'Neck',               halfLifeH: 36 },
+  // Neck flexion and extension are antagonists and were sharing one unit.
+  neck_flexors:       { region: 'neck',      name: 'Neck flexors',       halfLifeH: 36 },
+  neck_extensors:     { region: 'neck',      name: 'Neck extensors',     halfLifeH: 36 },
 } as const satisfies Record<string, { region: Region; name: string; halfLifeH: number }>
 
 export type MuscleId = keyof typeof MUSCLES

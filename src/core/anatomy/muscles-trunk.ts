@@ -46,7 +46,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'transversus_abdominis', name: 'Transversus abdominis',
     latin: 'Musculus transversus abdominis',
-    region: 'abdomen', trainableUnitId: 'obliques',
+    region: 'abdomen', trainableUnitId: 'deep_core',
     origin: [at('ribs_lower_inner', 'costal cartilages 7–12'), at('thoracolumbar_fascia'),
              at('iliac_crest_inner'), at('inguinal_ligament')],
     insertion: [at('linea_alba'), at('pubic_crest')],
@@ -58,7 +58,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'quadratus_lumborum', name: 'Quadratus lumborum', latin: 'Musculus quadratus lumborum',
-    region: 'abdomen', trainableUnitId: 'erectors',
+    region: 'abdomen', trainableUnitId: 'quadratus_lumborum',
     origin: [at('iliac_crest'), at('iliolumbar_ligament')],
     insertion: [at('rib_12'), at('lumbar_transverse', 'L1–L4')],
     innervation: [inn('subcostal', ['T12']), inn('lumbar_rami', ['L1', 'L2', 'L3', 'L4'])],
@@ -100,7 +100,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'multifidus', name: 'Multifidus', latin: 'Musculus multifidus',
-    region: 'back', group: 'transversospinalis', trainableUnitId: 'erectors',
+    region: 'back', group: 'transversospinalis', trainableUnitId: 'deep_core',
     origin: [at('sacrum_posterior'), at('lumbar_transverse'), at('thoracic_transverse')],
     insertion: [at('spinous_processes_general', 'two to four levels above')],
     innervation: [inn('dorsal_rami_spinal', ['C1–S5'])],
@@ -113,7 +113,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'semispinalis_capitis', name: 'Semispinalis capitis',
     latin: 'Musculus semispinalis capitis',
-    region: 'back', group: 'transversospinalis', trainableUnitId: 'neck',
+    region: 'back', group: 'transversospinalis', trainableUnitId: 'neck_extensors',
     origin: [at('c7_t6_transverse')],
     insertion: [at('occipital_between_nuchal_lines')],
     innervation: [inn('dorsal_rami_cervical', ['C1', 'C2', 'C3', 'C4', 'C5'])],
@@ -126,7 +126,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'sternocleidomastoid', name: 'Sternocleidomastoid',
     latin: 'Musculus sternocleidomastoideus',
-    region: 'neck', trainableUnitId: 'neck', palpable: true,
+    region: 'neck', trainableUnitId: 'neck_flexors', palpable: true,
     origin: [at('manubrium', 'sternal head'), at('clavicle_medial', 'clavicular head')],
     insertion: [at('mastoid_process'), at('nuchal_line_superior', 'lateral half')],
     innervation: [inn('accessory', ['CN XI'], 'motor'),
@@ -139,7 +139,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'scalenus_anterior', name: 'Anterior scalene', latin: 'Musculus scalenus anterior',
-    region: 'neck', group: 'scalenes', trainableUnitId: 'neck',
+    region: 'neck', group: 'scalenes', trainableUnitId: 'neck_flexors',
     origin: [at('c4_c6_transverse', 'C3–C6 anterior tubercles')], insertion: [at('rib_1')],
     innervation: [inn('cervical_rami', ['C4', 'C5', 'C6'])],
     actions: [act('cervical_spine_joint', 'lateral_flexion', 'prime', 'ipsilateral'),
@@ -149,7 +149,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'scalenus_medius', name: 'Middle scalene', latin: 'Musculus scalenus medius',
-    region: 'neck', group: 'scalenes', trainableUnitId: 'neck',
+    region: 'neck', group: 'scalenes', trainableUnitId: 'neck_flexors',
     origin: [at('cervical_transverse_all', 'C2–C7 posterior tubercles')], insertion: [at('rib_1')],
     innervation: [inn('cervical_rami', ['C3', 'C4', 'C5', 'C6', 'C7', 'C8'])],
     actions: [act('cervical_spine_joint', 'lateral_flexion', 'prime', 'ipsilateral')],
@@ -157,7 +157,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'scalenus_posterior', name: 'Posterior scalene', latin: 'Musculus scalenus posterior',
-    region: 'neck', group: 'scalenes', trainableUnitId: 'neck',
+    region: 'neck', group: 'scalenes', trainableUnitId: 'neck_flexors',
     origin: [at('c4_c6_transverse', 'C5–C7 posterior tubercles')], insertion: [at('rib_2')],
     innervation: [inn('cervical_rami', ['C6', 'C7', 'C8'])],
     actions: [act('cervical_spine_joint', 'lateral_flexion', 'assist', 'ipsilateral')],
@@ -165,7 +165,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'splenius_capitis', name: 'Splenius capitis', latin: 'Musculus splenius capitis',
-    region: 'neck', trainableUnitId: 'neck',
+    region: 'neck', trainableUnitId: 'neck_extensors',
     origin: [at('nuchal_ligament'), at('c7_t12_spinous', 'C7–T3')],
     insertion: [at('mastoid_process'), at('nuchal_line_superior')],
     innervation: [inn('dorsal_rami_cervical', ['C3', 'C4', 'C5'])],
@@ -177,7 +177,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'splenius_cervicis', name: 'Splenius cervicis', latin: 'Musculus splenius cervicis',
-    region: 'neck', trainableUnitId: 'neck',
+    region: 'neck', trainableUnitId: 'neck_extensors',
     origin: [at('t3_t6_spinous')], insertion: [at('c1_c3_transverse')],
     innervation: [inn('dorsal_rami_cervical', ['C5', 'C6', 'C7', 'C8'])],
     actions: [act('cervical_spine_joint', 'extension'),

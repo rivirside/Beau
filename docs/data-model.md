@@ -50,15 +50,44 @@ bench press already hammers the front delt, so "shoulders are fresh" is a lie
 that a 17-muscle vocabulary cannot catch. We resolve at the head level, but only
 where a *commonly programmed* choice actually changes the ratio.
 
-| Region | Muscles |
-| --- | --- |
-| chest | `pec_upper`, `pec_mid`, `pec_lower` |
-| back | `lats`, `teres_major`, `traps_upper`, `traps_mid`, `traps_lower`, `rhomboids`, `erectors` |
-| shoulders | `delt_front`, `delt_lateral`, `delt_rear`, `rotator_cuff` |
-| arms | `biceps_long`, `biceps_short`, `brachialis`, `brachioradialis`, `triceps_long`, `triceps_lateral`, `triceps_medial`, `forearm_flexors`, `forearm_extensors` |
-| legs | `quads_rf`, `quads_vasti`, `hamstrings`, `glute_max`, `glute_med_min`, `adductors`, `hip_flexors`, `calves_gastroc`, `calves_soleus`, `tibialis_ant` |
-| core | `rectus_abdominis`, `obliques` |
-| neck | `neck` |
+| Region | n | Muscles |
+| --- | --- | --- |
+| chest | 3 | `pec_upper`, `pec_mid`, `pec_lower` |
+| back | 7 | `lats`, `teres_major`, `traps_upper`, `traps_mid`, `traps_lower`, `rhomboids`, `erectors` |
+| shoulders | 6 | `delt_front`, `delt_lateral`, `delt_rear`, `supraspinatus`, `cuff_ext_rotators`, `subscapularis` |
+| arms | 9 | `biceps_long`, `biceps_short`, `brachialis`, `brachioradialis`, `triceps_long`, `triceps_lateral`, `triceps_medial`, `forearm_flexors`, `forearm_extensors` |
+| legs | 16 | `quads_rf`, `quads_vasti`, `hams_lateral`, `hams_medial`, `glute_max`, `glute_med_min`, `hip_ext_rotators`, `adductors`, `adductor_magnus`, `hip_flexors`, `calves_gastroc`, `calves_soleus`, `tibialis_ant`, `ankle_evertors`, `ankle_invertors`, `toe_flexors` |
+| core | 4 | `rectus_abdominis`, `obliques`, `quadratus_lumborum`, `deep_core` |
+| neck | 2 | `neck_flexors`, `neck_extensors` |
+
+### The lower body was badly under-resolved
+
+The first pass gave the arms 9 units and the entire lower body 10 — a
+bodybuilding-magazine bias, where the chest gets three units and the whole hip
+complex got four. Worse, several units had merged **direct antagonists**, which
+is not coarseness but a correctness bug: training one side registered as fatigue
+on the other.
+
+- The **rotator cuff** was one unit containing both external rotators
+  (infraspinatus, teres minor) and the internal rotator (subscapularis). Face
+  pulls were fatiguing subscapularis. Now three units.
+- The **deep six hip rotators** were filed under `glute_med_min`, an abduction
+  unit. Clamshells and hip airplanes were counted as abduction volume.
+- **Fibularis longus/brevis** (evertors) and **tibialis posterior** (invertor)
+  both sat inside `calves_soleus`, alongside the plantarflexors.
+- **Adductor magnus** shared a unit with adductor longus and gracilis, despite
+  being one of the largest hip extensors — squats hammer it, the adduction
+  machine barely touches it.
+- **Hamstrings** were one unit, but only the long head of biceps femoris crosses
+  the hip: an RDL and a leg curl are not the same stimulus, and tibial rotation
+  biases medial against lateral.
+- **Neck** was a single unit spanning flexors and extensors.
+
+`antagonistCollisions()` now enforces this automatically: no trainable unit may
+contain two muscles that are prime movers for opposing actions at the same
+joint. One documented exception exists (`ACCEPTED_COLLISIONS`), for the wrist
+extensors whose radial and ulnar deviation components cancel in the extension
+work anyone actually programs.
 
 Splits we deliberately **kept** (each is driven by an everyday programming choice):
 pec by incline angle; delts by press vs. raise vs. rear fly; biceps long/short by
@@ -270,10 +299,12 @@ the long tail of "Bosu Ball Cable Crunch With Side Bends."
 
 ## 12. Open questions
 
-1. **Muscle granularity.** ~30 trainable units is a bet that head-level
-   resolution is what makes recommendations feel smart. It can be collapsed to
-   ~17 later far more easily than it can be expanded. (The anatomy library is
-   free to be far larger — that is the point of keeping the layers separate.)
+1. **Muscle granularity.** 47 trainable units is a bet that action-level
+   resolution is what makes recommendations feel smart. The binding constraint
+   is not anatomy but exercise selection: a unit earns its place only if some
+   commonly programmed choice can target it specifically. `toe_flexors` is the
+   most marginal of the current set. (The anatomy library is free to be far
+   larger — that is the point of keeping the layers separate.)
 2. **Bodyweight load.** Push-ups and dips need a per-movement leverage factor
    (fraction of bodyweight actually moved) for volume math to mean anything.
 3. **Cardio and mobility.** Out of scope for now. The schema should not preclude

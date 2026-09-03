@@ -92,7 +92,7 @@ export const THORAX_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'semispinalis_cervicis', name: 'Semispinalis cervicis',
     latin: 'Musculus semispinalis cervicis', region: 'back', group: 'transversospinalis',
-    trainableUnitId: 'neck',
+    trainableUnitId: 'neck_extensors',
     origin: [at('c7_t6_transverse', 'T1–T6')], insertion: [at('c2_c4_spinous')],
     innervation: [inn('dorsal_rami_spinal', ['C1–S5'])],
     actions: [act('cervical_spine_joint', 'extension'),
@@ -110,7 +110,7 @@ export const THORAX_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'rotatores', name: 'Rotatores', latin: 'Musculi rotatores', region: 'back',
-    group: 'transversospinalis', trainableUnitId: 'erectors',
+    group: 'transversospinalis', trainableUnitId: 'deep_core',
     origin: [at('thoracic_transverse')],
     insertion: [at('spinous_processes_general', 'one to two levels above')],
     innervation: [inn('dorsal_rami_spinal', ['C1–S5'])],
@@ -122,7 +122,7 @@ export const THORAX_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'interspinales', name: 'Interspinales', latin: 'Musculi interspinales', region: 'back',
-    group: 'deep back', trainableUnitId: 'erectors',
+    group: 'deep back', trainableUnitId: 'deep_core',
     origin: [at('spinous_adjacent')], insertion: [at('spinous_adjacent')],
     innervation: [inn('dorsal_rami_spinal', ['C1–S5'])],
     actions: [act('spine', 'extension', 'assist')],
@@ -131,7 +131,7 @@ export const THORAX_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'intertransversarii', name: 'Intertransversarii',
     latin: 'Musculi intertransversarii', region: 'back', group: 'deep back',
-    trainableUnitId: 'erectors',
+    trainableUnitId: 'deep_core',
     origin: [at('transverse_adjacent')], insertion: [at('transverse_adjacent')],
     innervation: [inn('dorsal_rami_spinal', ['C1–S5'])],
     actions: [act('spine', 'lateral_flexion', 'assist', 'ipsilateral')],
