@@ -35,7 +35,12 @@ jobs:
       - run: |
           mkdir -p dist/exercise-images
           cp -r data/exercise-images/. dist/exercise-images/
+      # enablement switches the repo's Pages source to GitHub Actions. The repo
+      # was serving the old site from the main branch, which is why deploy-pages
+      # refused to run. This does it from the runner, which has pages: write.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
