@@ -52,9 +52,27 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         globIgnores: ['**/version.json'],
-        // Exercise photos are 17MB. Never precache them; cache on first view.
-        navigateFallback: `${BASE}index.html`,
+        cleanupOutdatedCaches: true,
+        // The plugin injects a navigateFallback NavigationRoute by default, and
+        // Workbox matches routes in registration order, so it would win over the
+        // NetworkFirst rule below and reinstate the trap. null suppresses it.
+        navigateFallback: null as unknown as undefined,
+        // Deliberately NO navigateFallback. That option makes the worker serve
+        // a precached index.html for every navigation and never consult the
+        // network, so once that shell references a hashed asset a later deploy
+        // has deleted, reloading can never escape it — the app is bricked until
+        // its storage is wiped by hand. Navigations use NetworkFirst instead:
+        // fresh HTML whenever the network answers, the cached copy only when it
+        // does not. Offline still works; a stale shell cannot trap anyone.
         runtimeCaching: [{
+          urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'pages',
+            networkTimeoutSeconds: 4,
+            expiration: { maxEntries: 8 },
+          },
+        }, {
           urlPattern: /\/exercise-images\/.*\.webp$/,
           handler: 'CacheFirst',
           options: {

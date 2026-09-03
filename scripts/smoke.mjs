@@ -101,6 +101,19 @@ step(12, 'update check answers')
 await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600)
 step(13, 'after reload: ' + await page.textContent('h1.large-title'))
 
+// Navigations are NetworkFirst; offline must still fall back to the cache.
+await page.context().setOffline(true)
+try {
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  await page.waitForSelector('h1.large-title', { timeout: 15000 })
+  step(13.5, 'offline reload: ' + (await page.textContent('h1.large-title')))
+} catch {
+  errors.push('the app did not load offline')
+  step(13.5, 'offline reload: FAILED')
+}
+await page.context().setOffline(false)
+await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(400)
+
 // Run setup again: returns to onboarding, keeps history, prefills current values
 await page.click('.tabbar button:has-text("Settings")')
 await page.click('text=Run setup again')

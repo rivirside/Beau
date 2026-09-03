@@ -33,6 +33,7 @@ jobs:
       - run: npm run build
       # A stale cached shell must always be able to recover itself; the in-app
       # reload button is no use when the app is what will not start.
+      - run: npm run check:sw
       - run: npm run check:recovery
       # Exercise photos are served from the site but never precached.
       - run: |
