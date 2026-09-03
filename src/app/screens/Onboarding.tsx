@@ -3,8 +3,9 @@ import { EQUIPMENT_TYPES } from '../../core/equipment/catalog'
 import { SPLIT_TEMPLATES, DAY_NAMES, FOCUS_LABEL, type WeekPlan } from '../../core/engine/plan'
 import { resolveVariant } from '../../core/variants'
 import { movementById } from '../../core/movements'
-import { saveGym, saveProfile, seedProgression } from '../store'
-import { fromDisplay } from '../format'
+import { saveGym, saveProfile, seedProgression, useApp, currentGym } from '../store'
+import { fromDisplay, toDisplay } from '../format'
+import { setTab, popToRoot } from '../nav'
 import { Group, Row, Segmented, ButtonRow, Custom } from '../ui'
 
 const PRESETS = [
@@ -29,13 +30,28 @@ type Exp = 'new' | 'intermediate' | 'advanced'
 const STEPS = ['Welcome', 'You', 'Your week', 'Your gym', 'Your lifts'] as const
 
 export function Onboarding() {
+  const app = useApp()
+  const gym = currentGym()
+  // A re-run starts from what you already have rather than from defaults, so
+  // setup is a review of every setting rather than a retyping of them.
+  const rerun = app.workouts.length > 0 || app.progression.size > 0 || !!gym
+  const priorSplit = SPLIT_TEMPLATES.find((t) =>
+    JSON.stringify(t.week) === JSON.stringify(app.profile.week))?.id
+
   const [step, setStep] = useState(0)
-  const [unit, setUnit] = useState<'kg' | 'lb'>('lb')
-  const [bodyweight, setBodyweight] = useState('175')
-  const [experience, setExperience] = useState<Exp>('intermediate')
-  const [split, setSplit] = useState(SPLIT_TEMPLATES[1]!.id)
-  const [preset, setPreset] = useState('full')
-  const [custom, setCustom] = useState<Set<string>>(new Set(PRESETS[0]!.equipment))
+  const [unit, setUnit] = useState<'kg' | 'lb'>(app.profile.displayUnit)
+  const [bodyweight, setBodyweight] = useState(
+    rerun ? String(Math.round(toDisplay(app.profile.bodyweightKg, app.profile.displayUnit) * 10) / 10)
+          : app.profile.displayUnit === 'lb' ? '175' : '80')
+  const [experience, setExperience] = useState<Exp>(app.profile.experience)
+  const [split, setSplit] = useState(priorSplit ?? SPLIT_TEMPLATES[1]!.id)
+  const [preset, setPreset] = useState(() => {
+    if (!gym) return 'full'
+    const same = PRESETS.find((p) => p.equipment.length === gym.equipmentTypeIds.length
+      && p.equipment.every((e) => gym.equipmentTypeIds.includes(e)))
+    return same?.id ?? 'custom'
+  })
+  const [custom, setCustom] = useState<Set<string>>(new Set(gym?.equipmentTypeIds ?? PRESETS[0]!.equipment))
   const [lifts, setLifts] = useState<Record<string, { w: string; r: string }>>({})
 
   const equipment = useMemo(() => preset === 'custom' ? [...custom] : PRESETS.find((p) => p.id === preset)!.equipment, [preset, custom])
@@ -49,6 +65,7 @@ export function Onboarding() {
 
   const finish = async () => {
     const week: WeekPlan = SPLIT_TEMPLATES.find((t) => t.id === split)!.week
+    // A re-run must not leave yesterday's proposal or rejections in place.
     await saveGym({ id: 'default', name: 'My gym', equipmentTypeIds: equipment })
     const raw = parseFloat(bodyweight) || (unit === 'lb' ? 175 : 80)
     for (const a of anchors) {
@@ -60,7 +77,12 @@ export function Onboarding() {
       onboarded: true, displayUnit: unit, defaultGymId: 'default', experience, week,
       volumePreset: experience === 'new' ? 'minimal' : experience === 'advanced' ? 'high' : 'standard',
       bodyweightKg: unit === 'lb' ? fromDisplay(raw, 'lb') : raw,
+      draft: undefined, skipped: undefined,
     })
+    // Finishing setup always lands on Today. Without this a re-run started from
+    // Settings drops you back into Settings, which reads as nothing happening.
+    popToRoot()
+    setTab('today')
   }
 
   const Nav = ({ next, last }: { next: () => void; last?: boolean }) => (
@@ -72,12 +94,14 @@ export function Onboarding() {
 
   return (
     <main class="bare">
-      <p class="tiny" style="padding:calc(env(safe-area-inset-top) + 18px) 16px 0">Step {step + 1} of {STEPS.length}</p>
+      <p class="tiny" style="padding:calc(env(safe-area-inset-top) + 18px) 16px 0">Step {step + 1} of {STEPS.length}{rerun && step === 0 ? ' · Setup again' : ''}</p>
       <h1 class="large-title">{step === 0 ? 'Beau' : STEPS[step]}</h1>
 
       {step === 0 && (
         <>
-          <p class="subtitle">Adaptive strength training that stays on your phone.</p>
+          <p class="subtitle">{rerun
+            ? 'Setting everything up again. Your logged sessions and lift history are kept.'
+            : 'Adaptive strength training that stays on your phone.'}</p>
           <Group footer="Four commitments. Everything in the app follows from one of them.">
             <Row label="Beau proposes; you decide" sub="Every session is a proposal. Swap or reject anything — each reason teaches it." />
             <Row label="Everything stays on this device" sub="No account, no server. Export is the only way your data leaves." />

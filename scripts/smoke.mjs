@@ -83,5 +83,34 @@ step(12, 'update check answers')
 
 await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600)
 step(13, 'after reload: ' + await page.textContent('h1.large-title'))
+
+// Run setup again: returns to onboarding, keeps history, prefills current values
+await page.click('.tabbar button:has-text("Settings")')
+await page.click('text=Run setup again')
+await page.waitForSelector('text=Setup again', { timeout: 5000 })
+step(14, 'run setup again → ' + (await page.textContent('.tiny')).trim())
+await page.click('text=Continue'); await page.waitForTimeout(150)
+const bw = await page.inputValue('input[inputmode="decimal"]')
+step(15, 'prefilled bodyweight from profile: ' + bw)
+// Walk to the last step rather than counting clicks, so adding a step to
+// setup does not silently break this test.
+for (let i = 0; i < 6 && !(await page.$('text=Start training')); i++) {
+  await page.click('text=Continue'); await page.waitForTimeout(150)
+}
+await page.click('text=Start training')
+await page.waitForSelector('h1.large-title:has-text("Today")')
+await page.click('.tabbar button:has-text("Progress")')
+const kept = await page.$$eval('.group-header:has-text("Sessions") + .group .row', (n) => n.length)
+step(16, 'history kept through setup re-run: ' + (kept > 0 ? 'yes' : 'NO — data lost'))
+if (kept === 0) errors.push('re-running setup destroyed logged sessions')
+
+// Reset app: erases everything, back to a genuinely first-run setup
+await page.click('.tabbar button:has-text("Settings")')
+await page.click('text=Reset app')
+await page.click('text=Erase and start over')
+await page.waitForSelector('h1.large-title:has-text("Beau")', { timeout: 5000 })
+const fresh = await page.textContent('.subtitle')
+step(17, 'reset app → first-run setup: ' + fresh.slice(0, 46))
+if (fresh.includes('kept')) errors.push('reset showed the re-run copy, not first-run')
 console.log(errors.length ? 'CONSOLE ERRORS:\n' + errors.join('\n') : 'no console errors')
 await browser.close()

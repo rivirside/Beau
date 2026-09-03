@@ -157,6 +157,19 @@ export async function abandonWorkout() {
   set({ active: null })
 }
 
+/** Re-run setup, keeping every logged session and all progression. This is the
+ *  honest answer to "why does it already have settings I never chose": an
+ *  upgraded profile inherits defaults, and this walks them all explicitly. */
+export async function rerunSetup() {
+  await saveProfile({ onboarded: false, draft: undefined, skipped: undefined })
+}
+
+/** Factory reset: every session, set, progression state and card review, gone. */
+export async function resetApp() {
+  await store.clearAll()
+  await reloadEverything()
+}
+
 export async function reloadEverything() {
   set({ ready: false })
   await load()

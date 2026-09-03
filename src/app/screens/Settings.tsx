@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { EQUIPMENT_TYPES } from '../../core/equipment/catalog'
 import { DAY_NAMES } from '../../core/engine/plan'
-import { useApp, saveProfile, saveGym, currentGym, reloadEverything } from '../store'
+import { useApp, saveProfile, saveGym, currentGym, reloadEverything, rerunSetup, resetApp } from '../store'
 import { downloadExport, importExport } from '../export'
 import { clearAll } from '../db'
 import { onUpdateStatus, checkForUpdate, applyPendingUpdate, forceReload, APP_VERSION, type UpdateStatus } from '../update'
@@ -28,6 +28,7 @@ export function Settings() {
         <Row label="Gym & equipment" value={`${gym?.equipmentTypeIds.length ?? 0} items`} onPress={go('gym', 'Gym & equipment', () => <GymPage />)} />
         <Row label="Preferences" sub="Rest timer, anatomy cards, session length" onPress={go('prefs', 'Preferences', () => <PreferencesPage />)} />
       </Group>
+      <StartOverGroup />
       <Group header="App">
         <Row label="Your data" sub="Export, import" onPress={go('data', 'Your data', () => <DataPage />)} />
         <Row label="Updates" value={status.state === 'ready' ? 'Update ready' : status.state === 'available' ? 'Downloading' : ''} accentValue onPress={go('updates', 'Updates', () => <UpdatesPage />)} />
@@ -35,6 +36,23 @@ export function Settings() {
       </Group>
       <div class="spacer" />
     </Page>
+  )
+}
+
+function StartOverGroup() {
+  const [confirm, setConfirm] = useState(false)
+  return (
+    <>
+      <Group header="Start over" footer="Run setup again to choose every setting yourself, keeping your logged sessions. Reset erases everything and starts from scratch.">
+        <ButtonRow label="Run setup again" onPress={() => void rerunSetup()} />
+        <ButtonRow label="Reset app" destructive onPress={() => setConfirm(true)} />
+      </Group>
+      {confirm && (
+        <ActionSheet title="Erase everything and start setup from scratch? Every session, set and lift history is deleted. There is no undo."
+          onCancel={() => setConfirm(false)}
+          actions={[{ label: 'Erase and start over', destructive: true, onPress: () => { setConfirm(false); void resetApp() } }]} />
+      )}
+    </>
   )
 }
 
