@@ -2,7 +2,7 @@ name: Deploy PWA
 
 on:
   push:
-    branches: [main, claude/fitbod-style-app-concept-n7nfgp]
+    branches: [main]
   workflow_dispatch:
 
 # Only one deploy at a time; never cancel one mid-flight.
