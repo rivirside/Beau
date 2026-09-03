@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { EQUIPMENT_TYPES } from '../../core/equipment/catalog'
 import { useApp, saveProfile, saveGym, currentGym, reloadEverything } from '../store'
-import { downloadExport, importExport, APP_VERSION } from '../export'
+import { downloadExport, importExport } from '../export'
 import { clearAll } from '../db'
-import { onUpdateStatus, checkForUpdate, applyPendingUpdate, type UpdateStatus } from '../update'
+import { onUpdateStatus, checkForUpdate, applyPendingUpdate, forceReload, APP_VERSION,
+         type UpdateStatus } from '../update'
 import { toDisplay, fromDisplay } from '../format'
 
 export function Settings() {
@@ -31,14 +32,15 @@ export function Settings() {
     }
   }
 
-  const updateLabel = {
+  const updateLabel: Record<UpdateStatus['state'], string> = {
     idle: 'Check for updates',
     checking: 'Checking…',
-    ready: 'Install update and reload',
     current: 'Check for updates',
-    offline: 'Check for updates',
+    available: 'Downloading update…',
+    ready: 'Install update and reload',
+    error: 'Try again',
     unsupported: 'Updates unavailable',
-  }[status.state]
+  }
 
   return (
     <>
@@ -52,24 +54,30 @@ export function Settings() {
                   if (status.state === 'ready') void applyPendingUpdate()
                   else void checkForUpdate()
                 }}>
-          {updateLabel}
+          {updateLabel[status.state]}
         </button>
         <p class="tiny" style="margin:10px 0 0">
           {status.state === 'ready' &&
-            'A new version is downloaded and waiting. Installing reloads the app — ' +
-            'your data is untouched.'}
+            `Version ${status.version ?? ''} is downloaded and waiting. Installing reloads the app — your data is untouched.`}
+          {status.state === 'available' &&
+            `Version ${status.version} is on the server; fetching it now. If this does not turn into an install button within a few seconds, use “Reload latest” below.`}
           {status.state === 'current' &&
-            `You are on the latest version. Checked ${
-              new Date(status.checkedAt).toLocaleTimeString()}.`}
-          {status.state === 'offline' &&
-            'No connection. Beau works fully offline; updates need one.'}
+            `You are on the latest version. Checked ${new Date(status.checkedAt).toLocaleTimeString()}.`}
+          {status.state === 'error' &&
+            (status.offlineHint
+              ? `Could not reach the server and the browser reports no connection. (${status.message})`
+              : `Could not check: ${status.message}`)}
           {status.state === 'unsupported' &&
-            'This browser has no service worker, so the app cannot update itself here. ' +
-            'Reload the page instead.'}
+            'This browser has no service worker, so the app cannot update itself here. Reload the page instead.'}
           {(status.state === 'idle' || status.state === 'checking') &&
             'Beau never updates itself mid-session. It only changes when you ask it to.'}
         </p>
-        <p class="tiny" style="margin:8px 0 0">Version {APP_VERSION}</p>
+        <p class="tiny" style="margin:8px 0 0">Running version {APP_VERSION}</p>
+        {(status.state === 'available' || status.state === 'error') && (
+          <button class="ghost wide" style="margin-top:10px" onClick={() => void forceReload()}>
+            Reload latest (clears app cache, keeps your data)
+          </button>
+        )}
       </div>
 
       <h2>Your data</h2>

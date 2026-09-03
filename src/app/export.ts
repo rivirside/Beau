@@ -22,7 +22,7 @@ export interface BeauExport {
   reviews: ReviewState[]
 }
 
-export const APP_VERSION = __APP_VERSION__
+import { APP_VERSION } from './update'
 
 export async function buildExport(): Promise<BeauExport> {
   const database = await db()

@@ -81,7 +81,9 @@ await page.click('text=Stop')
 
 await page.click('nav >> text=Settings')
 await page.waitForSelector('text=Check for updates')
-console.log('9. settings + update button present')
+await page.click('text=Check for updates')
+await page.waitForSelector('text=latest version', { timeout: 8000 })
+console.log('9. update check:', (await page.textContent('main .card p.tiny')).trim().slice(0, 50))
 await page.screenshot({ path: '/tmp/shot-settings.png' })
 
 // reload: data must survive

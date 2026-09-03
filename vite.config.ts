@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { execSync } from 'node:child_process'
 
 /** Stamped into the bundle so Settings can show exactly what is running. */
@@ -12,10 +12,22 @@ import { VitePWA } from 'vite-plugin-pwa'
 /** Served from https://<user>.github.io/Beau/ — every asset path depends on this. */
 const BASE = process.env.BEAU_BASE ?? '/Beau/'
 
+/** version.json is what the Settings update check fetches. It is emitted at
+ *  build time and deliberately excluded from the service worker precache — a
+ *  precached version file would forever report the version that cached it. */
+const versionFile: Plugin = {
+  name: 'beau-version-file',
+  generateBundle() {
+    this.emitFile({ type: 'asset', fileName: 'version.json',
+                    source: JSON.stringify({ version: APP_VERSION, builtAt: new Date().toISOString() }) })
+  },
+}
+
 export default defineConfig({
   base: BASE,
   plugins: [
     preact(),
+    versionFile,
     VitePWA({
       // 'prompt' rather than 'autoUpdate': the Settings screen owns when an
       // update is applied, so a new version never reloads mid-set.
@@ -39,6 +51,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globIgnores: ['**/version.json'],
         // Exercise photos are 17MB. Never precache them; cache on first view.
         navigateFallback: `${BASE}index.html`,
         runtimeCaching: [{
