@@ -18,6 +18,8 @@
       #boot p { color: #8e8e93; font-size: 15px; margin: 0 0 20px; }
       #boot button { font: inherit; font-weight: 600; color: #fff; background: #0a84ff;
         border: 0; border-radius: 12px; padding: 15px 22px; width: 100%; max-width: 320px; }
+      #boot #boot-alt { margin: 16px 0 0; }
+      #boot a { color: #0a84ff; font-size: 15px; text-decoration: none; }
       #boot pre { display: none; text-align: left; white-space: pre-wrap; word-break: break-word;
         background: #1c1c1e; color: #ff9f0a; font-size: 12px; line-height: 1.4; padding: 12px;
         border-radius: 10px; margin: 0 0 20px; max-height: 34vh; overflow: auto; }
@@ -40,6 +42,7 @@
       <p id="boot-msg">Something went wrong while loading.</p>
       <pre id="boot-detail"></pre>
       <button id="boot-fix" type="button">Reset cached files and reload</button>
+      <p id="boot-alt"><a id="boot-link" href="./">Or open a fresh copy</a></p>
     </div>
 
     <script>
@@ -54,21 +57,35 @@
 
         function clearShell() {
           var steps = []
-          if (navigator.serviceWorker) {
-            steps.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
-              return Promise.all(rs.map(function (r) { return r.unregister() }))
-            }))
-          }
-          if (window.caches) {
-            steps.push(caches.keys().then(function (ks) {
-              return Promise.all(ks.map(function (k) { return caches.delete(k) }))
-            }))
-          }
+          try {
+            if (navigator.serviceWorker) {
+              steps.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+                return Promise.all(rs.map(function (r) { return r.unregister() }))
+              }))
+            }
+            if (window.caches) {
+              steps.push(caches.keys().then(function (ks) {
+                return Promise.all(ks.map(function (k) { return caches.delete(k) }))
+              }))
+            }
+          } catch (e) {}
           return Promise.all(steps)['catch'](function () {})
         }
 
         function reload() {
           location.replace(location.pathname + '?heal=' + Date.now())
+        }
+
+        /* Clear what we can, then reload no matter what.
+           A wedged service worker can leave getRegistrations() or caches.keys()
+           pending forever, and the first version of this gated the reload on
+           those promises — so the recovery button did nothing at all when it
+           was needed most. The timer, not the promise, guarantees the reload. */
+        function clearShellThenReload() {
+          var went = false
+          function go() { if (!went) { went = true; reload() } }
+          setTimeout(go, 2500)
+          clearShell().then(go, go)
         }
 
         function heal(reason, detail) {
@@ -82,7 +99,7 @@
           // loop that hides the real error.
           if (tried || reason === 'runtime') { showFallback(reason); return }
           try { sessionStorage.setItem(KEY, reason) } catch (e) {}
-          clearShell().then(reload)
+          clearShellThenReload()
         }
 
         function showFallback(reason) {
@@ -125,9 +142,18 @@
           try { sessionStorage.removeItem(KEY); sessionStorage.removeItem(ERR) } catch (e) {}
         }
 
+        // Cache-busted at parse time so the link is useful even if the click
+        // handler below never runs.
+        try {
+          document.getElementById('boot-link').href = location.pathname + '?fresh=' + Date.now()
+        } catch (e) {}
+
         document.getElementById('boot-fix').addEventListener('click', function () {
-          try { sessionStorage.removeItem(KEY) } catch (e) {}
-          clearShell().then(reload)
+          var btn = document.getElementById('boot-fix')
+          btn.textContent = 'Resetting…'
+          btn.disabled = true
+          try { sessionStorage.removeItem(KEY); sessionStorage.removeItem(ERR) } catch (e) {}
+          clearShellThenReload()
         })
       })()
     </script>

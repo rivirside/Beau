@@ -12,13 +12,13 @@ import { tmpdir } from 'node:os'
 import { createServer } from 'node:http'
 import { extname } from 'node:path'
 
-const mode = process.argv[2] ?? 'missing'
+const mode = process.argv[2] ?? 'missing'   // missing | crash | hang
 const dir = mkdtempSync(join(tmpdir(), 'beau-broken-'))
 cpSync('dist', join(dir, 'Beau'), { recursive: true })
 
 const indexPath = join(dir, 'Beau', 'index.html')
 const html = readFileSync(indexPath, 'utf8')
-if (mode === 'missing') {
+if (mode === 'missing' || mode === 'hang') {
   // A stale cached shell: the script it names is gone from the server.
   writeFileSync(indexPath, html.replace(/src="\/Beau\/assets\/index-[^"]+\.js"/,
     'src="/Beau/assets/index-DELETED0.js"'))
@@ -46,6 +46,17 @@ await new Promise((r) => server.listen(4174, r))
 
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' })
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+
+if (mode === 'hang') {
+  // A wedged service worker leaves these pending forever. The recovery path
+  // must not depend on them settling.
+  await page.addInitScript(() => {
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.getRegistrations = () => new Promise(() => {})
+    }
+    if (window.caches) window.caches.keys = () => new Promise(() => {})
+  })
+}
 const navigations = []
 page.on('framenavigated', (f) => { if (f === page.mainFrame()) navigations.push(f.url()) })
 page.on('console', (m) => console.log('  [console]', m.type(), m.text()))
@@ -68,7 +79,18 @@ console.log('attempted cache reset:', healed)
 console.log('detail shown:', JSON.stringify(detail.slice(0, 80)))
 
 let ok = hasButton && detail.length > 0
-if (mode === 'missing') {
+if (mode === 'hang') {
+  // The button must reload even though nothing it awaits will ever settle.
+  const before = navigations.length
+  await page.click('#boot-fix')
+  await page.waitForFunction((n) => performance.getEntriesByType('navigation').length >= 0 && n, before, { timeout: 1000 }).catch(() => {})
+  await page.waitForTimeout(4000)
+  const moved = navigations.length > before
+  console.log('navigated after click despite hung promises:', moved)
+  ok = moved
+  console.log(ok ? 'PASS — recovery reloads even when the service worker is wedged'
+                 : 'FAIL — the recovery button did nothing, exactly as reported')
+} else if (mode === 'missing') {
   // A genuinely stale cache is worth clearing exactly once.
   ok = ok && healed && navigations.length === 2 && /could not be loaded/.test(msg)
   console.log(ok ? 'PASS — a dead shell resets its cache once, then explains itself'

@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "smoke": "node scripts/smoke.mjs",
     "check:svg": "node scripts/check-svg.mjs",
-    "check:recovery": "node scripts/recovery-test.mjs missing && node scripts/recovery-test.mjs crash",
+    "check:recovery": "node scripts/recovery-test.mjs missing && node scripts/recovery-test.mjs crash && node scripts/recovery-test.mjs hang",
     "check:sw": "node scripts/check-sw.mjs"
   },
   "devDependencies": {
