@@ -9,7 +9,7 @@ import { generateCards } from './cards'
 import { newReviewState, review, Rating } from './scheduler'
 import { deckForRest } from './session'
 import { resolveVariant } from '../variants'
-import { EXAMPLE_MOVEMENTS } from '../movements/examples'
+import { MOVEMENT_CATALOG as EXAMPLE_MOVEMENTS } from '../movements'
 
 const cards = generateCards()
 

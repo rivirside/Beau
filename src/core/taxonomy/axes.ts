@@ -15,6 +15,9 @@ export const AXES = {
                      'kneeling', 'half_kneeling'],
   laterality:       ['bilateral', 'unilateral', 'alternating'],
   rom_bias:         ['full', 'lengthened_partial', 'shortened_partial'],
+  /** Tibial rotation on leg curls, and foot turn-out on calf work. The axis
+   *  that makes the medial/lateral hamstring split actually programmable. */
+  foot_rotation:    ['neutral', 'internal', 'external'],
 } as const
 
 export type AxisId = keyof typeof AXES

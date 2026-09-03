@@ -151,7 +151,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'teres_major', name: 'Teres major', latin: 'Musculus teres major',
-    region: 'shoulder', trainableUnitId: 'teres_major',
+    region: 'shoulder', trainableUnitId: 'lats',
     origin: [at('scapula_inferior_angle'), at('scapula_lateral_border', 'lower third')],
     insertion: [at('intertubercular_groove_medial')],
     innervation: [inn('lower_subscapular', ['C5', 'C6'])],

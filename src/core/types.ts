@@ -38,6 +38,9 @@ export interface Movement {
   axialLoad: number
   /** Curated movements are auto-prescribed; imported ones are loggable only. §11 */
   source: 'curated' | 'imported' | 'user'
+  /** Why this movement is in the catalog, or what it is uniquely good for.
+   *  Surfaced when the generator explains a pick. */
+  notes?: string
   instructions?: string[]
   images?: string[]
   vendorId?: string

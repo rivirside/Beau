@@ -11,8 +11,10 @@ export const MUSCLES = {
   pec_mid:            { region: 'chest',     name: 'Mid chest',          halfLifeH: 60 },
   pec_lower:          { region: 'chest',     name: 'Lower chest',        halfLifeH: 60 },
 
+  // Teres major is folded in here, not given its own unit: it shares all three
+  // of the lats' actions and no movement in the catalog can shift the ratio
+  // between them. The coverage report caught it as an orphan.
   lats:               { region: 'back',      name: 'Lats',               halfLifeH: 66 },
-  teres_major:        { region: 'back',      name: 'Teres major',        halfLifeH: 54 },
   traps_upper:        { region: 'back',      name: 'Upper traps',        halfLifeH: 48 },
   traps_mid:          { region: 'back',      name: 'Mid traps',          halfLifeH: 48 },
   traps_lower:        { region: 'back',      name: 'Lower traps',        halfLifeH: 48 },

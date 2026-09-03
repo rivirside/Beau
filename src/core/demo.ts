@@ -1,11 +1,12 @@
 /** Sanity check: does the model actually express the cases that motivated it?
  *  Run with `npm run demo`. */
 
-import { EXAMPLE_MOVEMENTS } from './movements/examples'
+import { MOVEMENT_CATALOG as EXAMPLE_MOVEMENTS } from './movements'
 import { resolveVariant, enumerateVariants, similarity } from './variants'
 import type { MuscleId } from './taxonomy/muscles'
 
 const by = (id: string) => EXAMPLE_MOVEMENTS.find((m) => m.id === id)!
+const ids = ['cable_fly', 'db_bench_press', 'db_curl', 'pull_up']
 
 const show = (label: string, v: ReturnType<typeof resolveVariant>, keys: MuscleId[]) => {
   const cells = keys.map((k) => `${k} ${(v.contributions[k] ?? 0).toFixed(2)}`).join('  ')
@@ -30,8 +31,8 @@ for (const c of [{}, { body_position: 'lying' }, { grip_orientation: 'neutral' }
        ['biceps_long', 'biceps_short', 'brachialis', 'brachioradialis'])
 }
 
-console.log('\nVariants generated per movement:')
-for (const m of EXAMPLE_MOVEMENTS) {
+console.log('\nVariants generated per movement (sample):')
+for (const m of EXAMPLE_MOVEMENTS.filter((x) => ids.includes(x.id))) {
   console.log(`  ${m.name.padEnd(24)} ${enumerateVariants(m).length}`)
 }
 

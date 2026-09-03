@@ -1,0 +1,147 @@
+/** Equipment types, with the loading model that makes a suggested weight one
+ *  you can actually set. Gym instances (GymEquipment) override the loading with
+ *  what a particular gym really has. See docs/data-model.md §4 */
+
+import type { EquipmentType } from '../taxonomy/equipment'
+
+const KG = (lb: number) => Math.round(lb * 0.45359237 * 100) / 100
+
+/** A standard imperial plate set, per side. */
+const PLATES_LB = [45, 35, 25, 10, 5, 2.5].map(KG)
+/** Typical selectorized stack: 10 lb increments to 200. */
+const STACK_LB = Array.from({ length: 20 }, (_, i) => KG((i + 1) * 10))
+/** Dumbbell rack: 5 lb jumps to 50, then 10 lb jumps to 150. */
+const DB_LB = [
+  ...Array.from({ length: 10 }, (_, i) => KG(5 * (i + 1))),
+  ...Array.from({ length: 10 }, (_, i) => KG(50 + 10 * (i + 1))),
+]
+
+export const EQUIPMENT_TYPES: EquipmentType[] = [
+  /* ------------------------------------------------------------ free weights */
+  { id: 'barbell', name: 'Barbell', category: 'free_weight',
+    axes: ['grip_width', 'grip_orientation', 'stance', 'body_position', 'rom_bias',
+           'laterality', 'attachment'],
+    defaultLoading: { kind: 'plate_loaded', barKg: KG(45), platePairsKg: PLATES_LB } },
+  { id: 'ez_bar', name: 'EZ curl bar', category: 'free_weight',
+    axes: ['grip_width', 'grip_orientation'],
+    defaultLoading: { kind: 'plate_loaded', barKg: KG(25), platePairsKg: PLATES_LB } },
+  { id: 'trap_bar', name: 'Trap bar', category: 'free_weight',
+    axes: ['grip_width', 'stance'],
+    defaultLoading: { kind: 'plate_loaded', barKg: KG(60), platePairsKg: PLATES_LB } },
+  { id: 'dumbbell', name: 'Dumbbells', category: 'free_weight',
+    axes: ['grip_orientation', 'body_position', 'laterality', 'bench_angle', 'stance',
+           'rom_bias', 'attachment', 'foot_rotation'],
+    defaultLoading: { kind: 'fixed_set', weightsKg: DB_LB } },
+  { id: 'kettlebell', name: 'Kettlebells', category: 'free_weight',
+    axes: ['grip_orientation', 'laterality', 'stance'],
+    defaultLoading: { kind: 'fixed_set', weightsKg: [8, 12, 16, 20, 24, 28, 32, 40, 48] } },
+  { id: 'plate', name: 'Weight plate', category: 'free_weight',
+    axes: ['body_position'],
+    defaultLoading: { kind: 'fixed_set', weightsKg: [2.5, 5, 10, 25, 35, 45].map(KG) } },
+  { id: 'landmine', name: 'Landmine', category: 'free_weight',
+    axes: ['grip_orientation', 'stance', 'laterality'],
+    defaultLoading: { kind: 'plate_loaded', barKg: KG(45), platePairsKg: PLATES_LB } },
+
+  /* ------------------------------------------------------------------ cables */
+  { id: 'cable_tower', name: 'Cable tower', category: 'cable',
+    axes: ['pulley_height', 'attachment', 'laterality', 'body_position', 'grip_orientation',
+           'grip_width', 'stance', 'rom_bias', 'foot_rotation'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB, addOnKg: [KG(2.5), KG(5)] },
+    attachments: ['rope', 'straight_bar', 'ez_bar', 'lat_bar', 'v_bar', 'd_handle',
+                  'single_d', 'ankle_strap', 'belt'] },
+  { id: 'lat_pulldown', name: 'Lat pulldown station', category: 'cable',
+    axes: ['attachment', 'grip_width', 'grip_orientation', 'laterality'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB, addOnKg: [KG(5)] },
+    attachments: ['lat_bar', 'v_bar', 'rope', 'straight_bar', 'single_d'] },
+  { id: 'seated_row', name: 'Seated row station', category: 'cable',
+    axes: ['attachment', 'grip_width', 'grip_orientation', 'laterality'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB, addOnKg: [KG(5)] },
+    attachments: ['v_bar', 'straight_bar', 'lat_bar', 'rope', 'single_d'] },
+
+  /* ---------------------------------------------------------------- machines */
+  { id: 'smith_machine', name: 'Smith machine', category: 'machine',
+    axes: ['grip_width', 'stance', 'bench_angle', 'body_position'],
+    defaultLoading: { kind: 'plate_loaded', barKg: KG(25), platePairsKg: PLATES_LB } },
+  { id: 'chest_press_machine', name: 'Chest press machine', category: 'machine',
+    axes: ['grip_orientation', 'bench_angle', 'laterality'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'shoulder_press_machine', name: 'Shoulder press machine', category: 'machine',
+    axes: ['grip_orientation', 'laterality'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'pec_deck', name: 'Pec deck', category: 'machine',
+    axes: ['laterality', 'bench_angle'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'lateral_raise_machine', name: 'Lateral raise machine', category: 'machine',
+    axes: ['laterality', 'rom_bias'], defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'leg_press', name: 'Leg press', category: 'machine',
+    axes: ['stance', 'laterality'],
+    defaultLoading: { kind: 'plate_loaded', barKg: 0, platePairsKg: PLATES_LB } },
+  { id: 'hack_squat', name: 'Hack squat machine', category: 'machine',
+    axes: ['stance'], defaultLoading: { kind: 'plate_loaded', barKg: 0, platePairsKg: PLATES_LB } },
+  { id: 'leg_extension', name: 'Leg extension machine', category: 'machine',
+    axes: ['body_position', 'laterality', 'rom_bias'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'leg_curl_lying', name: 'Lying leg curl machine', category: 'machine',
+    axes: ['laterality', 'foot_rotation'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'leg_curl_seated', name: 'Seated leg curl machine', category: 'machine',
+    axes: ['laterality', 'foot_rotation'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'hip_abduction_machine', name: 'Hip abduction machine', category: 'machine',
+    axes: ['body_position'], defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'hip_adduction_machine', name: 'Hip adduction machine', category: 'machine',
+    axes: ['body_position'], defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'calf_raise_standing', name: 'Standing calf raise machine', category: 'machine',
+    axes: ['stance', 'laterality', 'rom_bias', 'foot_rotation'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'calf_raise_seated', name: 'Seated calf raise machine', category: 'machine',
+    axes: ['stance', 'rom_bias', 'foot_rotation'],
+    defaultLoading: { kind: 'plate_loaded', barKg: 0, platePairsKg: PLATES_LB } },
+  { id: 'hip_thrust_machine', name: 'Hip thrust machine', category: 'machine',
+    axes: ['stance', 'laterality'], defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+  { id: 'back_extension_bench', name: 'Back extension bench', category: 'support',
+    axes: ['bench_angle', 'laterality'],
+    defaultLoading: { kind: 'bodyweight', canAddLoad: true, canAssist: false } },
+  { id: 'glute_ham_raise', name: 'Glute-ham developer', category: 'support',
+    axes: [], defaultLoading: { kind: 'bodyweight', canAddLoad: true, canAssist: false } },
+  { id: 'assisted_pullup_machine', name: 'Assisted pull-up machine', category: 'machine',
+    axes: ['grip_width', 'grip_orientation'],
+    defaultLoading: { kind: 'selectorized', stopsKg: STACK_LB } },
+
+  /* ----------------------------------------------------- support and bodyweight */
+  { id: 'adjustable_bench', name: 'Adjustable bench', category: 'support',
+    axes: ['bench_angle'], defaultLoading: { kind: 'none' } },
+  { id: 'flat_bench', name: 'Flat bench', category: 'support',
+    axes: [], defaultLoading: { kind: 'none' } },
+  { id: 'preacher_bench', name: 'Preacher bench', category: 'support',
+    axes: [], defaultLoading: { kind: 'none' } },
+  { id: 'squat_rack', name: 'Squat rack', category: 'support',
+    axes: [], defaultLoading: { kind: 'none' } },
+  { id: 'box', name: 'Box or step', category: 'support',
+    axes: [], defaultLoading: { kind: 'none' } },
+  { id: 'pull_up_bar', name: 'Pull-up bar', category: 'bodyweight',
+    axes: ['grip_width', 'grip_orientation', 'rom_bias', 'laterality'],
+    defaultLoading: { kind: 'bodyweight', canAddLoad: true, canAssist: true } },
+  { id: 'dip_station', name: 'Dip station', category: 'bodyweight',
+    axes: ['grip_width', 'body_position'],
+    defaultLoading: { kind: 'bodyweight', canAddLoad: true, canAssist: true } },
+  { id: 'bodyweight', name: 'Bodyweight', category: 'bodyweight',
+    axes: ['stance', 'body_position', 'laterality', 'bench_angle', 'grip_width', 'rom_bias'],
+    defaultLoading: { kind: 'bodyweight', canAddLoad: true, canAssist: false } },
+  { id: 'ab_wheel', name: 'Ab wheel', category: 'accessory',
+    axes: ['body_position'], defaultLoading: { kind: 'bodyweight', canAddLoad: false, canAssist: false } },
+  { id: 'neck_harness', name: 'Neck harness', category: 'accessory',
+    axes: ['body_position'], defaultLoading: { kind: 'fixed_set', weightsKg: [2.5, 5, 10, 25].map(KG) } },
+  { id: 'band', name: 'Resistance band', category: 'accessory',
+    axes: ['pulley_height', 'laterality', 'body_position', 'stance', 'rom_bias',
+           'grip_orientation', 'foot_rotation'],
+    defaultLoading: { kind: 'band', levels: [
+      { id: 'x_light', label: 'Extra light', approxKg: 5 },
+      { id: 'light', label: 'Light', approxKg: 10 },
+      { id: 'medium', label: 'Medium', approxKg: 18 },
+      { id: 'heavy', label: 'Heavy', approxKg: 27 },
+      { id: 'x_heavy', label: 'Extra heavy', approxKg: 36 },
+    ] } },
+]
+
+export const equipmentById = (id: string) => EQUIPMENT_TYPES.find((e) => e.id === id)
