@@ -4,6 +4,11 @@ Two features share one data structure: the engine needs to know what a set
 worked, and the learning mode needs to teach what that muscle is. Built as one
 graph, they reinforce each other. Built separately, they rot apart.
 
+The library is scoped for a medical or allied-health student, not just a lifter:
+the complete 206-bone skeleton, and muscles down to the third palmar
+interosseous and the superior oblique. That scope costs the engine nothing,
+because of the layering below.
+
 ## 1. The layering problem
 
 The instinct to "add way more muscles" is right for the library and wrong for
@@ -18,13 +23,25 @@ not worth opening twice.
 So:
 
 ```
-AnatomicalMuscle   the real anatomy. ~90 seeded, room for ~600.
-      │            origin, insertion, innervation, actions, heads
-      │ trainableUnitId
+Bone · Landmark · Joint · Nerve      the reference skeleton and wiring
+      ▲
+      │ attachments, innervation, actions
+      │
+AnatomicalMuscle   the real anatomy. 167 seeded, room for ~600.
+      │            origin, insertion, innervation, actions, heads, functions
+      │ trainableUnitId  (optional — this is the important part)
       ▼
 TrainableUnit      what the engine reasons about. ~34.
                    fatigue, recovery, volume targets, exercise contributions
 ```
+
+**`trainableUnitId` is optional, and that is what lets the library grow without
+limit.** 76 of the 167 muscles have none: the intrinsic muscles of the hand and
+foot, the muscles of facial expression, the extraocular muscles, the pelvic
+floor. They are fully modelled, fully quizzable, and completely invisible to the
+engine — `TRAINABLE_MUSCLES` filters them out, and no fatigue or generation code
+ever touches them. Adding the muscles of the pharynx tomorrow changes nothing
+downstream.
 
 Many-to-one, and both directions are useful:
 
@@ -34,11 +51,32 @@ Many-to-one, and both directions are useful:
   `quads_vasti`, because no exercise selectively trains one and no recovery model
   should pretend otherwise.
 
+Regions follow the same split. The library uses anatomical regions — `forearm`
+and `hand` are different places, as they are in a dissection course — while the
+engine keeps its gym vocabulary of `arms`. Neither has to compromise.
+
 `TrainableUnit` is exactly the muscle vocabulary already in `taxonomy/muscles.ts`
 — unchanged, and deliberately so. The anatomy layer is additive: it can grow to
 600 muscles without touching a line of engine code.
 
-## 2. Attachments as a graph, not as prose
+## 2. The skeleton
+
+`bones.ts` holds the complete adult skeleton: 54 named entries which, with
+paired bones carrying `count: 2`, total exactly **206** — 80 axial and 126
+appendicular, asserted in `validateGraph()` so the count cannot silently drift.
+
+Each bone carries its division, its class (long, short, flat, irregular,
+sesamoid), and what it articulates with. Articulations are what make bones a
+subject rather than a lookup table: *"what does the scaphoid articulate with?"*
+is a real exam question, and it is now a graph edge rather than a paragraph.
+
+Landmarks hang off bones and carry a `type` — process, tuberosity, fossa,
+foramen, and so on — because anatomy courses drill that vocabulary directly.
+Soft-tissue attachment sites (the thoracolumbar fascia, the iliotibial band, the
+interosseous membranes) have no `boneId` at all, which is honest: they are real
+attachment points that belong to no bone.
+
+## 3. Attachments as a graph, not as prose
 
 Storing origin and insertion as free text ("supraglenoid tubercle of the
 scapula") makes them printable and nothing else. Attachments instead reference
@@ -58,7 +96,7 @@ traversal is what makes the learning mode good:
 - Attachment overlap explains why exercises feel related, in the same way muscle
   vector similarity explains substitution.
 
-## 3. Actions, and why synergists are derived
+## 4. Actions, and why synergists are derived
 
 A muscle's actions are `(joint, action)` pairs with a role:
 
@@ -68,6 +106,12 @@ actions: [
   { joint: 'glenohumeral', action: 'internal_rotation', role: 'assist' },
 ]
 ```
+
+Muscles whose work is not a movement at a joint — facial expression, the
+diaphragm, the pelvic floor, levator palpebrae — carry `functions: string[]`
+instead. Keeping those out of `actions` is deliberate: the derived synergist and
+antagonist logic below is defined over joints, and letting "wrinkles the
+forehead" into it would quietly corrupt the derivation.
 
 Given a table of opposing actions (flexion ↔ extension, abduction ↔ adduction,
 internal ↔ external rotation), **synergists and antagonists are computed, not
@@ -81,7 +125,7 @@ table is a hand-maintained lie the moment anything changes. Deriving it means th
 graph cannot contradict itself, and it generates a card type — *"name an
 antagonist of psoas major"* — for free.
 
-## 4. Learning mode
+## 5. Learning mode
 
 ### Cards are generated, not authored
 
@@ -99,8 +143,16 @@ its cards automatically:
 | `landmark_attachments` | Landmark → everything attaching to it |
 | `nerve_muscles` | Nerve → everything it innervates |
 | `muscle_antagonist` | Muscle → an antagonist (derived) |
-| `muscle_locate` | Photo → name the muscle under load |
+| `muscle_function` | Muscle → what it does, where that is not a joint action |
 | `muscle_latin` | Common name ↔ Terminologia Anatomica name |
+| `bone_articulations` | Bone → what it articulates with |
+| `bone_landmarks` | Bone → name its features |
+| `bone_class` | Bone → division and class |
+| `landmark_bone` | Landmark → which bone bears it |
+
+Fourteen generators over the current library produce **1,497 cards**, none of
+them hand-authored. Bone cards inherit the trainable units of the muscles
+attaching to that bone, so they can still surface in a rest-timer deck.
 
 Card IDs are deterministic (`muscle_origin:biceps_brachii`), so review history
 survives regenerating the whole deck — the same reasoning as variant IDs.
@@ -134,7 +186,7 @@ kinesiology and PT students, coaches, and the large population of lifters who
 would like to be that person. Nobody else is building it, and it costs one extra
 data layer over what the engine already needed.
 
-## 5. Accuracy
+## 6. Accuracy
 
 This is educational medical content, and someone may study for an exam on it.
 Two guardrails in the schema:
@@ -143,11 +195,26 @@ Two guardrails in the schema:
   learning mode should visibly mark anything below `verified`.
 - Every muscle carries `sources[]`, so a claim can be traced.
 
-**The seeded data is `draft`.** It covers the ~90 muscles of the limbs, trunk and
-neck at a level standard across anatomy references, but it has not been checked
-against one, and it should be before anyone studies from it. Checking 90 entries
-against a standard reference (Gray's, Moore, Kenhub) is an afternoon of work and
-is a prerequisite for shipping the learning mode, not a nice-to-have.
+**The seeded data is `draft`.** It covers 167 muscles and the full skeleton at a
+level standard across anatomy references, but it has not been checked against
+one, and it should be before anyone studies from it. This matters more now than
+it did at 86 muscles: a lifter misremembering an insertion loses nothing, and a
+medical student does. Verifying the library against a standard reference
+(Gray's, Moore, Kenhub) is a prerequisite for shipping the learning mode, not a
+nice-to-have — and at this size it is a real piece of work, best done region by
+region, promoting each from `draft` to `verified` as it is checked.
+
+### Deferred
+
+- **Blood supply.** `Artery` and `BloodSupply` types are declared, and arterial
+  supply is a standard fourth column alongside origin, insertion and
+  innervation. Not populated: partially populated data would generate cards for
+  an arbitrary subset of muscles.
+- **Deeper head and neck.** The tongue, pharynx, larynx and middle ear muscles
+  are absent. They fit the schema unchanged.
+- **Images.** The exercise photos say nothing about the pelvic floor. A muscle
+  identification card type needs anatomical illustrations, and the licensing
+  question there is the same one as for the data.
 
 ### On sourcing
 

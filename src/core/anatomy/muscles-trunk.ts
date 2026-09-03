@@ -8,7 +8,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   /* ---------------------------------------------------------- abdominal wall */
   {
     id: 'rectus_abdominis', name: 'Rectus abdominis', latin: 'Musculus rectus abdominis',
-    region: 'core', trainableUnitId: 'rectus_abdominis', palpable: true,
+    region: 'abdomen', trainableUnitId: 'rectus_abdominis', palpable: true,
     origin: [at('pubic_crest'), at('pubic_symphysis')],
     insertion: [at('xiphoid_process'), at('costal_cartilages_5_7')],
     innervation: [inn('thoracoabdominal', ['T7', 'T8', 'T9', 'T10', 'T11']),
@@ -20,7 +20,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'external_oblique', name: 'External oblique', latin: 'Musculus obliquus externus abdominis',
-    region: 'core', trainableUnitId: 'obliques', palpable: true,
+    region: 'abdomen', trainableUnitId: 'obliques', palpable: true,
     origin: [at('ribs_5_12_outer')],
     insertion: [at('iliac_crest'), at('linea_alba'), at('inguinal_ligament')],
     innervation: [inn('thoracoabdominal', ['T7', 'T8', 'T9', 'T10', 'T11']),
@@ -32,7 +32,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'internal_oblique', name: 'Internal oblique', latin: 'Musculus obliquus internus abdominis',
-    region: 'core', trainableUnitId: 'obliques',
+    region: 'abdomen', trainableUnitId: 'obliques',
     origin: [at('thoracolumbar_fascia'), at('iliac_crest_inner'), at('inguinal_ligament')],
     insertion: [at('ribs_10_12'), at('linea_alba')],
     innervation: [inn('thoracoabdominal', ['T7', 'T8', 'T9', 'T10', 'T11']),
@@ -46,7 +46,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'transversus_abdominis', name: 'Transversus abdominis',
     latin: 'Musculus transversus abdominis',
-    region: 'core', trainableUnitId: 'obliques',
+    region: 'abdomen', trainableUnitId: 'obliques',
     origin: [at('ribs_lower_inner', 'costal cartilages 7–12'), at('thoracolumbar_fascia'),
              at('iliac_crest_inner'), at('inguinal_ligament')],
     insertion: [at('linea_alba'), at('pubic_crest')],
@@ -58,7 +58,7 @@ export const TRUNK_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'quadratus_lumborum', name: 'Quadratus lumborum', latin: 'Musculus quadratus lumborum',
-    region: 'back', trainableUnitId: 'erectors',
+    region: 'abdomen', trainableUnitId: 'erectors',
     origin: [at('iliac_crest'), at('iliolumbar_ligament')],
     insertion: [at('rib_12'), at('lumbar_transverse', 'L1–L4')],
     innervation: [inn('subcostal', ['T12']), inn('lumbar_rami', ['L1', 'L2', 'L3', 'L4'])],

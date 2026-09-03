@@ -1,7 +1,9 @@
 /** End-to-end check of the anatomy graph and the learning layer.
  *  Run with `npm run demo:learn`. */
 
-import { MUSCLE_LIBRARY, LANDMARKS, NERVES, JOINTS } from '../anatomy'
+import {
+  MUSCLE_LIBRARY, TRAINABLE_MUSCLES, LANDMARKS, NERVES, JOINTS, BONES, TOTAL_BONE_COUNT,
+} from '../anatomy'
 import { antagonistsOf, synergistsOf, attachmentsAt, musclesForTrainableUnit } from '../anatomy/graph'
 import { generateCards } from './cards'
 import { newReviewState, review, Rating } from './scheduler'
@@ -12,13 +14,31 @@ import { EXAMPLE_MOVEMENTS } from '../movements/examples'
 const cards = generateCards()
 
 console.log('\nLibrary')
-console.log(`  ${MUSCLE_LIBRARY.length} muscles, ${LANDMARKS.length} landmarks, ` +
+console.log(`  ${MUSCLE_LIBRARY.length} muscles, ${TOTAL_BONE_COUNT} bones ` +
+            `(${BONES.length} named entries), ${LANDMARKS.length} landmarks, ` +
             `${NERVES.length} nerves, ${JOINTS.length} joints`)
+console.log(`  ${TRAINABLE_MUSCLES.length} visible to the engine, ` +
+            `${MUSCLE_LIBRARY.length - TRAINABLE_MUSCLES.length} library-only ` +
+            `(hand, foot, face, eye, pelvic floor)`)
 console.log(`  ${cards.length} cards generated, none hand-authored`)
 const byKind = new Map<string, number>()
 for (const c of cards) byKind.set(c.kind, (byKind.get(c.kind) ?? 0) + 1)
 for (const [k, n] of [...byKind].sort((a, b) => b[1] - a[1])) {
   console.log(`    ${k.padEnd(22)} ${n}`)
+}
+
+console.log('\nThe engine never sees the library-only muscles')
+const libraryOnly = MUSCLE_LIBRARY.filter((m) => !TRAINABLE_MUSCLES.includes(m))
+console.log('  e.g. ' + libraryOnly.slice(0, 6).map((m) => m.name).join(', ') + ' …')
+console.log(`  every one has trainableUnitId undefined: ` +
+            `${libraryOnly.every((m) => m.trainableUnitId === undefined)}`)
+
+console.log('\nBones are a subject of their own now')
+for (const id of ['scaphoid', 'patella', 'sphenoid']) {
+  const bone = BONES.find((x) => x.id === id)!
+  console.log(`  ${bone.name}: ${bone.division}, ${bone.class}, ` +
+              `articulates with ${bone.articulatesWith?.length ?? 0}`)
+  if (bone.notes) console.log(`    ${bone.notes}`)
 }
 
 console.log('\nDerived relationships (no lookup table)')

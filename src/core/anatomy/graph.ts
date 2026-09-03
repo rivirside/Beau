@@ -6,6 +6,7 @@ import type { AnatomicalMuscle, MuscleAction, JointActionName } from '../taxonom
 import { OPPOSING_ACTIONS } from '../taxonomy/anatomy'
 import { MUSCLE_LIBRARY } from './index'
 import { LANDMARKS, JOINTS } from './skeleton'
+import { BONES, TOTAL_BONE_COUNT } from './bones'
 import { NERVES } from './nerves'
 
 const key = (a: Pick<MuscleAction, 'joint' | 'action'>) => `${a.joint}:${a.action}`
@@ -14,6 +15,18 @@ export const muscleById = (id: string) => MUSCLE_LIBRARY.find((m) => m.id === id
 export const landmarkById = (id: string) => LANDMARKS.find((l) => l.id === id)
 export const nerveById = (id: string) => NERVES.find((n) => n.id === id)
 export const jointById = (id: string) => JOINTS.find((j) => j.id === id)
+export const boneById = (id: string) => BONES.find((x) => x.id === id)
+
+/** Every landmark on a bone — "name the features of the scapula". */
+export const landmarksOnBone = (boneId: string) =>
+  LANDMARKS.filter((l) => l.boneId === boneId)
+
+/** Every muscle attaching anywhere on a bone, via its landmarks. */
+export function musclesOnBone(boneId: string, library = MUSCLE_LIBRARY) {
+  const ids = new Set(landmarksOnBone(boneId).map((l) => l.id))
+  return library.filter((m) =>
+    [...m.origin, ...m.insertion].some((a) => ids.has(a.landmarkId)))
+}
 
 /** Everything attaching to a bony landmark, split by whether it is an origin or
  *  an insertion. The query that makes landmark cards possible. */
@@ -125,13 +138,19 @@ export function validateGraph(library = MUSCLE_LIBRARY): string[] {
       errors.push(`nerve ${n.id}: unknown parent "${n.parentId}"`)
     }
   }
+  const boneIds = new Set(BONES.map((x) => x.id))
   for (const l of LANDMARKS) {
-    if (!new Set(['skull','mandible','cervical_spine','thoracic_spine','lumbar_spine','sacrum',
-                  'coccyx','ribs','sternum','clavicle','scapula','humerus','radius','ulna','carpals',
-                  'metacarpals','phalanges_hand','ilium','ischium','pubis','femur','patella','tibia',
-                  'fibula','tarsals','metatarsals','phalanges_foot']).has(l.boneId)) {
+    if (l.boneId && !boneIds.has(l.boneId)) {
       errors.push(`landmark ${l.id}: unknown bone "${l.boneId}"`)
     }
+  }
+  for (const bone of BONES) {
+    for (const other of bone.articulatesWith ?? []) {
+      if (!boneIds.has(other)) errors.push(`bone ${bone.id}: unknown articulation "${other}"`)
+    }
+  }
+  if (TOTAL_BONE_COUNT !== 206) {
+    errors.push(`skeleton totals ${TOTAL_BONE_COUNT} bones, expected 206`)
   }
   return errors
 }

@@ -3,15 +3,17 @@
  *  See docs/anatomy-model.md §4 */
 
 import type { AnatomicalMuscle, TrainableUnitId } from '../taxonomy/anatomy'
-import { MUSCLE_LIBRARY, LANDMARKS, NERVES, JOINTS } from '../anatomy'
+import { MUSCLE_LIBRARY, LANDMARKS, NERVES, JOINTS, BONES } from '../anatomy'
 import {
   attachmentsAt, musclesForAction, musclesInnervatedBy, antagonistsOf, landmarkById, nerveById,
+  boneById, landmarksOnBone, musclesOnBone,
 } from '../anatomy/graph'
 
 export const CARD_KINDS = [
   'muscle_origin', 'muscle_insertion', 'muscle_innervation', 'muscle_actions',
-  'action_muscles', 'landmark_attachments', 'nerve_muscles', 'muscle_antagonist',
-  'muscle_latin',
+  'muscle_function', 'action_muscles', 'landmark_attachments', 'nerve_muscles',
+  'muscle_antagonist', 'muscle_latin',
+  'bone_articulations', 'bone_landmarks', 'bone_class', 'landmark_bone',
 ] as const
 export type CardKind = (typeof CARD_KINDS)[number]
 
@@ -78,6 +80,15 @@ export function generateCards(library = MUSCLE_LIBRARY): Card[] {
       front: `Anatomical name for **${m.name}**?`, back: [m.latin],
     })
 
+    // Muscles whose work is not a joint movement — facial expression, the
+    // diaphragm, the pelvic floor — are asked about differently.
+    if (m.functions?.length) {
+      cards.push({
+        ...base, tags, id: `muscle_function:${m.id}`, kind: 'muscle_function',
+        front: `What does **${m.name}** do?`, back: m.functions,
+      })
+    }
+
     const antagonists = antagonistsOf(m, library)
     if (antagonists.length > 0) {
       cards.push({
@@ -119,6 +130,50 @@ export function generateCards(library = MUSCLE_LIBRARY): Card[] {
       ],
       trainableUnitIds: [...new Set(all.flatMap(unitsOf))],
       reviewStatus: 'draft', tags: ['attachments'],
+    })
+  }
+
+  // Bones became a subject of their own once the full skeleton went in.
+  for (const bone of BONES) {
+    const units = [...new Set(musclesOnBone(bone.id, library).flatMap(unitsOf))]
+
+    if (bone.articulatesWith?.length) {
+      cards.push({
+        id: `bone_articulations:${bone.id}`, kind: 'bone_articulations',
+        front: `What does the **${bone.name}** articulate with?`,
+        back: bone.articulatesWith.map((id) => boneById(id)?.name ?? id),
+        trainableUnitIds: units, reviewStatus: 'draft', tags: ['skeleton', bone.region],
+      })
+    }
+
+    const features = landmarksOnBone(bone.id)
+    if (features.length >= 3) {
+      cards.push({
+        id: `bone_landmarks:${bone.id}`, kind: 'bone_landmarks',
+        front: `Name the bony landmarks of the **${bone.name}**.`,
+        back: features.map((l) => l.name),
+        trainableUnitIds: units, reviewStatus: 'draft', tags: ['skeleton', bone.region],
+      })
+    }
+
+    cards.push({
+      id: `bone_class:${bone.id}`, kind: 'bone_class',
+      front: `Classify the **${bone.name}**: division and bone class?`,
+      back: [`${bone.division}, ${bone.class} bone`,
+             bone.paired ? 'Paired' : `${bone.count === 1 ? 'Single' : `${bone.count} in total`}`],
+      trainableUnitIds: units, reviewStatus: 'draft', tags: ['skeleton', bone.region],
+    })
+  }
+
+  // Landmark → its bone. The reverse of the attachment card, and the one that
+  // actually gets asked in a practical exam with a dry skeleton on the bench.
+  for (const landmark of LANDMARKS) {
+    if (!landmark.boneId) continue
+    cards.push({
+      id: `landmark_bone:${landmark.id}`, kind: 'landmark_bone',
+      front: `Which bone bears the **${landmark.name}**?`,
+      back: [boneById(landmark.boneId)?.name ?? landmark.boneId],
+      trainableUnitIds: [], reviewStatus: 'draft', tags: ['skeleton'],
     })
   }
 

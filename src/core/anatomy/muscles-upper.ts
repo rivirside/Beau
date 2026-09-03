@@ -64,7 +64,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'serratus_anterior', name: 'Serratus anterior', latin: 'Musculus serratus anterior',
-    region: 'back', group: 'scapular stabilizers', trainableUnitId: 'traps_lower',
+    region: 'thorax', group: 'scapular stabilizers', trainableUnitId: 'traps_lower',
     palpable: true,
     origin: [at('ribs_1_8_lateral')],
     insertion: [at('scapula_medial_border', 'anterior/costal surface')],
@@ -75,7 +75,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'pectoralis_minor', name: 'Pectoralis minor', latin: 'Musculus pectoralis minor',
-    region: 'chest', group: 'scapular stabilizers', trainableUnitId: 'pec_lower',
+    region: 'thorax', group: 'scapular stabilizers', trainableUnitId: 'pec_lower',
     origin: [at('ribs_3_5')], insertion: [at('coracoid_process')],
     innervation: [inn('medial_pectoral', ['C8', 'T1'])],
     actions: [act('scapulothoracic', 'depression'), act('scapulothoracic', 'protraction'),
@@ -86,7 +86,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* ------------------------------------------------------------- glenohumeral */
   {
     id: 'deltoid', name: 'Deltoid', latin: 'Musculus deltoideus',
-    region: 'shoulders', palpable: true,
+    region: 'shoulder', palpable: true,
     origin: [at('clavicle_lateral', 'anterior fibres'), at('acromion', 'middle fibres'),
              at('scapular_spine', 'posterior fibres')],
     insertion: [at('deltoid_tuberosity')],
@@ -112,7 +112,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'supraspinatus', name: 'Supraspinatus', latin: 'Musculus supraspinatus',
-    region: 'shoulders', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
     origin: [at('supraspinous_fossa')],
     insertion: [at('greater_tubercle', 'superior facet')],
     innervation: [inn('suprascapular', ['C5', 'C6'])],
@@ -123,7 +123,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'infraspinatus', name: 'Infraspinatus', latin: 'Musculus infraspinatus',
-    region: 'shoulders', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
     origin: [at('infraspinous_fossa')],
     insertion: [at('greater_tubercle', 'middle facet')],
     innervation: [inn('suprascapular', ['C5', 'C6'])],
@@ -133,7 +133,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'teres_minor', name: 'Teres minor', latin: 'Musculus teres minor',
-    region: 'shoulders', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
     origin: [at('scapula_lateral_border', 'upper two-thirds')],
     insertion: [at('greater_tubercle', 'inferior facet')],
     innervation: [inn('axillary', ['C5', 'C6'])],
@@ -142,7 +142,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'subscapularis', name: 'Subscapularis', latin: 'Musculus subscapularis',
-    region: 'shoulders', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
+    region: 'shoulder', group: 'rotator cuff', trainableUnitId: 'rotator_cuff',
     origin: [at('subscapular_fossa')], insertion: [at('lesser_tubercle')],
     innervation: [inn('upper_subscapular', ['C5', 'C6']), inn('lower_subscapular', ['C5', 'C6'])],
     actions: [act('glenohumeral', 'internal_rotation'), act('glenohumeral', 'adduction', 'assist')],
@@ -151,7 +151,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'teres_major', name: 'Teres major', latin: 'Musculus teres major',
-    region: 'back', trainableUnitId: 'teres_major',
+    region: 'shoulder', trainableUnitId: 'teres_major',
     origin: [at('scapula_inferior_angle'), at('scapula_lateral_border', 'lower third')],
     insertion: [at('intertubercular_groove_medial')],
     innervation: [inn('lower_subscapular', ['C5', 'C6'])],
@@ -174,7 +174,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'pectoralis_major', name: 'Pectoralis major', latin: 'Musculus pectoralis major',
-    region: 'chest', palpable: true,
+    region: 'thorax', palpable: true,
     origin: [at('clavicle_medial', 'clavicular head'), at('sternum_body', 'sternocostal head'),
              at('costal_cartilages', 'ribs 1–6'), at('external_oblique_aponeurosis', 'abdominal head')],
     insertion: [at('intertubercular_groove_lateral')],
@@ -202,7 +202,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'coracobrachialis', name: 'Coracobrachialis', latin: 'Musculus coracobrachialis',
-    region: 'arms', trainableUnitId: 'delt_front',
+    region: 'arm', trainableUnitId: 'delt_front',
     origin: [at('coracoid_process')], insertion: [at('humerus_shaft_medial', 'middle third')],
     innervation: [inn('musculocutaneous', ['C5', 'C6', 'C7'])],
     actions: [act('glenohumeral', 'flexion', 'assist'), act('glenohumeral', 'adduction', 'assist')],
@@ -213,7 +213,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* ---------------------------------------------------------------- upper arm */
   {
     id: 'biceps_brachii', name: 'Biceps brachii', latin: 'Musculus biceps brachii',
-    region: 'arms', palpable: true,
+    region: 'arm', palpable: true,
     origin: [at('supraglenoid_tubercle', 'long head'), at('coracoid_process', 'short head')],
     insertion: [at('radial_tuberosity'), at('palmar_aponeurosis', 'via the bicipital aponeurosis')],
     innervation: [inn('musculocutaneous', ['C5', 'C6'])],
@@ -230,7 +230,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'brachialis', name: 'Brachialis', latin: 'Musculus brachialis',
-    region: 'arms', trainableUnitId: 'brachialis',
+    region: 'arm', trainableUnitId: 'brachialis',
     origin: [at('humerus_shaft_anterior', 'distal half')],
     insertion: [at('ulna_coronoid', 'and the ulnar tuberosity')],
     innervation: [inn('musculocutaneous', ['C5', 'C6']),
@@ -241,7 +241,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'triceps_brachii', name: 'Triceps brachii', latin: 'Musculus triceps brachii',
-    region: 'arms', palpable: true,
+    region: 'arm', palpable: true,
     origin: [at('infraglenoid_tubercle', 'long head'),
              at('humerus_shaft_posterior', 'lateral head, above the radial groove'),
              at('humerus_shaft_posterior', 'medial head, below the radial groove')],
@@ -265,7 +265,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'anconeus', name: 'Anconeus', latin: 'Musculus anconeus',
-    region: 'arms', trainableUnitId: 'triceps_lateral',
+    region: 'arm', trainableUnitId: 'triceps_lateral',
     origin: [at('lateral_epicondyle')], insertion: [at('olecranon'), at('ulna_shaft', 'proximal posterior')],
     innervation: [inn('radial', ['C7', 'C8'])],
     actions: [act('elbow', 'extension', 'assist')],
@@ -275,7 +275,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   /* ------------------------------------------------------------------ forearm */
   {
     id: 'brachioradialis', name: 'Brachioradialis', latin: 'Musculus brachioradialis',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'brachioradialis',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'brachioradialis',
     palpable: true,
     origin: [at('lateral_supracondylar_ridge', 'proximal two-thirds')],
     insertion: [at('radius_styloid')],
@@ -286,7 +286,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'pronator_teres', name: 'Pronator teres', latin: 'Musculus pronator teres',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('medial_epicondyle'), at('ulna_coronoid')],
     insertion: [at('radius_shaft', 'lateral surface, mid-shaft')],
     innervation: [inn('median', ['C6', 'C7'])],
@@ -295,7 +295,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'pronator_quadratus', name: 'Pronator quadratus', latin: 'Musculus pronator quadratus',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('ulna_shaft', 'distal anterior')], insertion: [at('radius_shaft', 'distal anterior')],
     innervation: [inn('anterior_interosseous', ['C7', 'C8'])],
     actions: [act('radioulnar', 'pronation')],
@@ -303,7 +303,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'supinator', name: 'Supinator', latin: 'Musculus supinator',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
     origin: [at('lateral_epicondyle'), at('supinator_crest')],
     insertion: [at('radius_shaft', 'proximal third')],
     innervation: [inn('posterior_interosseous', ['C6', 'C7'])],
@@ -313,7 +313,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_carpi_radialis', name: 'Flexor carpi radialis',
     latin: 'Musculus flexor carpi radialis',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('medial_epicondyle', 'common flexor origin')],
     insertion: [at('metacarpal_2_3_base')],
     innervation: [inn('median', ['C6', 'C7'])],
@@ -323,7 +323,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_carpi_ulnaris', name: 'Flexor carpi ulnaris',
     latin: 'Musculus flexor carpi ulnaris',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('medial_epicondyle', 'common flexor origin'), at('olecranon'),
              at('ulna_shaft', 'posterior border')],
     insertion: [at('pisiform'), at('hamate'), at('metacarpal_5_base')],
@@ -333,7 +333,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'palmaris_longus', name: 'Palmaris longus', latin: 'Musculus palmaris longus',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('medial_epicondyle', 'common flexor origin')],
     insertion: [at('palmar_aponeurosis')],
     innervation: [inn('median', ['C7', 'C8'])],
@@ -344,7 +344,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_digitorum_superficialis', name: 'Flexor digitorum superficialis',
     latin: 'Musculus flexor digitorum superficialis',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('medial_epicondyle', 'common flexor origin'), at('ulna_coronoid'),
              at('radius_shaft', 'anterior oblique line')],
     insertion: [at('phalanges_middle', 'digits 2–5')],
@@ -356,7 +356,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'flexor_digitorum_profundus', name: 'Flexor digitorum profundus',
     latin: 'Musculus flexor digitorum profundus',
-    region: 'arms', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
+    region: 'forearm', compartment: 'anterior forearm', trainableUnitId: 'forearm_flexors',
     origin: [at('ulna_shaft', 'proximal anteromedial'), at('interosseous_membrane_forearm')],
     insertion: [at('phalanges_distal_hand', 'digits 2–5')],
     innervation: [inn('anterior_interosseous', ['C8', 'T1'], 'digits 2–3'),
@@ -369,7 +369,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'extensor_carpi_radialis_longus', name: 'Extensor carpi radialis longus',
     latin: 'Musculus extensor carpi radialis longus',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
     origin: [at('lateral_supracondylar_ridge')], insertion: [at('metacarpal_2_3_base', '2nd metacarpal')],
     innervation: [inn('radial', ['C6', 'C7'])],
     actions: [act('wrist', 'extension'), act('wrist', 'abduction')],
@@ -378,7 +378,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'extensor_carpi_radialis_brevis', name: 'Extensor carpi radialis brevis',
     latin: 'Musculus extensor carpi radialis brevis',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
     origin: [at('lateral_epicondyle', 'common extensor origin')],
     insertion: [at('metacarpal_2_3_base', '3rd metacarpal')],
     innervation: [inn('radial', ['C7', 'C8'])],
@@ -388,7 +388,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   },
   {
     id: 'extensor_digitorum', name: 'Extensor digitorum', latin: 'Musculus extensor digitorum',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
     origin: [at('lateral_epicondyle', 'common extensor origin')],
     insertion: [at('extensor_expansion', 'digits 2–5')],
     innervation: [inn('posterior_interosseous', ['C7', 'C8'])],
@@ -398,7 +398,7 @@ export const UPPER_LIMB_MUSCLES: AnatomicalMuscle[] = [
   {
     id: 'extensor_carpi_ulnaris', name: 'Extensor carpi ulnaris',
     latin: 'Musculus extensor carpi ulnaris',
-    region: 'arms', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
+    region: 'forearm', compartment: 'posterior forearm', trainableUnitId: 'forearm_extensors',
     origin: [at('lateral_epicondyle', 'common extensor origin'), at('ulna_shaft', 'posterior border')],
     insertion: [at('metacarpal_5_base')],
     innervation: [inn('posterior_interosseous', ['C7', 'C8'])],

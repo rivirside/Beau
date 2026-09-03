@@ -3,24 +3,63 @@
  *  into a TrainableUnit that the engine already understands.
  *  See docs/anatomy-model.md */
 
-import type { MuscleId as TrainableUnitId, Region } from './muscles'
+import type { MuscleId as TrainableUnitId } from './muscles'
 
 export type { TrainableUnitId }
 
+/** Anatomical regions, deliberately NOT the engine's gym regions. A medical
+ *  student browsing the library wants "forearm" and "hand" as separate places;
+ *  the engine wants "arms". Each layer keeps its own vocabulary, and
+ *  trainableUnitId bridges them. */
+export const ANATOMICAL_REGIONS = [
+  'head', 'neck', 'thorax', 'abdomen', 'back', 'pelvis', 'perineum',
+  'shoulder', 'arm', 'forearm', 'hand',
+  'hip', 'thigh', 'leg', 'foot',
+] as const
+export type AnatomicalRegion = (typeof ANATOMICAL_REGIONS)[number]
+
 /* ------------------------------------------------------------------ skeleton */
+
+/** Gross shape, the way bones are classified in an anatomy course. */
+export type BoneClass = 'long' | 'short' | 'flat' | 'irregular' | 'sesamoid'
 
 export interface Bone {
   id: string
   name: string
-  region: Region | 'axial' | 'girdle'
+  latin?: string
+  region: AnatomicalRegion
+  /** Axial skeleton (80 bones) or appendicular (126). */
+  division: 'axial' | 'appendicular'
+  class: BoneClass
+  /** Paired bones are stored once with count 2, so the library lists ~90 named
+   *  bones that add up to the standard 206. */
+  paired: boolean
+  count: number
+  /** Bones this one articulates with — a card type of its own. */
+  articulatesWith?: string[]
+  notes?: string
 }
+
+/** The kind of feature a landmark is. Anatomy courses drill this vocabulary
+ *  directly ("name three examples of a tuberosity"), so it is worth typing. */
+export const LANDMARK_TYPES = [
+  'process', 'tubercle', 'tuberosity', 'trochanter', 'condyle', 'epicondyle',
+  'head', 'neck', 'shaft', 'border', 'angle', 'crest', 'line', 'ridge',
+  'spine', 'fossa', 'foramen', 'notch', 'groove', 'facet', 'fascia',
+  'ligament', 'membrane', 'aponeurosis', 'surface', 'region',
+] as const
+export type LandmarkType = (typeof LANDMARK_TYPES)[number]
 
 /** Attachments reference landmarks rather than storing prose, which is what
  *  makes "what attaches to the coracoid process?" a graph walk. §2 */
 export interface Landmark {
   id: string
   name: string
-  boneId: string
+  /** Absent for soft-tissue attachment sites — the thoracolumbar fascia, the
+   *  iliotibial band, the interosseous membranes — which are real attachment
+   *  points but belong to no bone. */
+  boneId?: string
+  type?: LandmarkType
 }
 
 export interface Attachment {
@@ -99,6 +138,20 @@ export interface Innervation {
   note?: string
 }
 
+/* -------------------------------------------------------------------- vessels */
+
+export interface Artery {
+  id: string
+  name: string
+  parentId?: string
+  region: AnatomicalRegion | 'systemic'
+}
+
+export interface BloodSupply {
+  arteryId: string
+  note?: string
+}
+
 /* -------------------------------------------------------------------- muscles */
 
 export type ReviewStatus = 'draft' | 'reviewed' | 'verified'
@@ -120,7 +173,7 @@ export interface AnatomicalMuscle {
   name: string
   /** Terminologia Anatomica / Latin name. */
   latin: string
-  region: Region | 'axial'
+  region: AnatomicalRegion
   /** Anatomical grouping, e.g. 'rotator cuff', 'hamstrings', 'deep hip rotators'. */
   group?: string
   compartment?: string
@@ -128,9 +181,18 @@ export interface AnatomicalMuscle {
   insertion: Attachment[]
   innervation: Innervation[]
   actions: MuscleAction[]
+  /** Actions that are not movements at a joint — the muscles of facial
+   *  expression move skin, sphincters close orifices, the diaphragm changes a
+   *  cavity's volume. Kept separate from `actions` so the derived synergist and
+   *  antagonist logic, which is defined over joints, stays sound. */
+  functions?: string[]
   heads?: MuscleHead[]
+  bloodSupply?: BloodSupply[]
   /** Where this lands in the engine's vocabulary. Many muscles map to one unit;
-   *  a muscle with heads may map per head instead. */
+   *  a muscle with heads may map per head instead. Left undefined for muscles
+   *  the engine has no business programming — the intrinsic muscles of the hand,
+   *  the muscles of facial expression — which is how the library grows toward
+   *  medical-school completeness without the engine ever seeing them. §1 */
   trainableUnitId?: TrainableUnitId
   /** Can it be felt or seen? Drives a "find it on yourself" card type. */
   palpable?: boolean

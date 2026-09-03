@@ -89,4 +89,40 @@ export const NERVES: Nerve[] = [
     parentId: 'sacral_plexus', roots: ['L5', 'S1', 'S2'] },
   { id: 'nerve_to_quadratus_femoris', name: 'Nerve to quadratus femoris', plexus: 'sacral',
     parentId: 'sacral_plexus', roots: ['L4', 'L5', 'S1'] },
+
+  // --- cranial nerves with skeletal motor territory
+  { id: 'oculomotor', name: 'Oculomotor nerve (CN III)', plexus: 'none', roots: ['CN III'] },
+  { id: 'trochlear', name: 'Trochlear nerve (CN IV)', plexus: 'none', roots: ['CN IV'] },
+  { id: 'trigeminal', name: 'Trigeminal nerve (CN V)', plexus: 'none', roots: ['CN V'] },
+  { id: 'mandibular_v3', name: 'Mandibular nerve (CN V3)', plexus: 'none',
+    parentId: 'trigeminal', roots: ['CN V3'] },
+  { id: 'abducens', name: 'Abducens nerve (CN VI)', plexus: 'none', roots: ['CN VI'] },
+  { id: 'facial', name: 'Facial nerve (CN VII)', plexus: 'none', roots: ['CN VII'] },
+  { id: 'hypoglossal', name: 'Hypoglossal nerve (CN XII)', plexus: 'none', roots: ['CN XII'] },
+
+  // --- further cervical branches
+  { id: 'ansa_cervicalis', name: 'Ansa cervicalis', plexus: 'cervical',
+    parentId: 'cervical_plexus', roots: ['C1', 'C2', 'C3'] },
+  { id: 'c1_via_hypoglossal', name: 'C1 fibres travelling with the hypoglossal nerve',
+    plexus: 'cervical', parentId: 'cervical_plexus', roots: ['C1'] },
+  { id: 'suboccipital', name: 'Suboccipital nerve', plexus: 'none',
+    parentId: 'dorsal_rami_cervical', roots: ['C1'] },
+  { id: 'phrenic', name: 'Phrenic nerve', plexus: 'cervical',
+    parentId: 'cervical_plexus', roots: ['C3', 'C4', 'C5'] },
+
+  // --- distal hand and foot branches
+  { id: 'ulnar_deep', name: 'Deep branch of the ulnar nerve', plexus: 'brachial',
+    parentId: 'ulnar', roots: ['C8', 'T1'] },
+  { id: 'ulnar_superficial', name: 'Superficial branch of the ulnar nerve', plexus: 'brachial',
+    parentId: 'ulnar', roots: ['C8', 'T1'] },
+  { id: 'median_recurrent', name: 'Recurrent branch of the median nerve', plexus: 'brachial',
+    parentId: 'median', roots: ['C8', 'T1'] },
+  { id: 'medial_plantar', name: 'Medial plantar nerve', plexus: 'sacral',
+    parentId: 'tibial', roots: ['L4', 'L5'] },
+  { id: 'lateral_plantar', name: 'Lateral plantar nerve', plexus: 'sacral',
+    parentId: 'tibial', roots: ['S1', 'S2'] },
+  { id: 'pudendal', name: 'Pudendal nerve', plexus: 'sacral',
+    parentId: 'sacral_plexus', roots: ['S2', 'S3', 'S4'] },
+  { id: 'sacral_rami', name: 'Sacral spinal nerves (anterior rami)', plexus: 'sacral',
+    parentId: 'sacral_plexus', roots: ['S3', 'S4'] },
 ]
