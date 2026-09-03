@@ -24,7 +24,23 @@ console.log('3. generated workout:', cards.slice(0, 5).join(' | '))
 
 await page.screenshot({ path: '/tmp/shot-today.png' })
 
-await page.click('text=Start session')
+// Review flow: swap the first pick, reject the second for today, then start.
+const before = cards.length
+await page.click('main .card >> nth=0 >> text=Swap')
+await page.waitForSelector('.sheet')
+const altCount = await page.$$eval('.sheet .stack button', (n) => n.length)
+console.log('3b. swap sheet shows', altCount, 'alternatives')
+await page.click('.sheet .stack button >> nth=0')
+await page.waitForSelector('.sheet', { state: 'detached' })
+await page.click('main .card >> nth=1 >> text=✕')
+await page.waitForSelector('text=Not today')
+await page.click('text=Not today')
+await page.waitForSelector('.sheet', { state: 'detached' })
+await page.waitForTimeout(400)
+const after = await page.$$eval('main .card strong', (n) => n.length)
+console.log('3c. after swap+reject still', after >= before - 1 ? 'a full session' : 'MISSING exercises')
+
+await page.click('button:has-text("Start ·")')
 await page.waitForSelector('text=Session')
 console.log('4. session started')
 
@@ -46,6 +62,22 @@ console.log('7. session finished')
 await page.click('nav >> text=History')
 await page.waitForTimeout(300)
 console.log('8. history:', (await page.textContent('main p.muted')) ?? '')
+
+await page.click('nav >> text=Plan')
+await page.waitForSelector('text=Quick splits')
+await page.click('text=Push / Pull / Legs × 6')
+await page.waitForTimeout(200)
+console.log('8b. plan set:', (await page.textContent('main p.tiny')).trim().slice(0, 40))
+
+await page.click('nav >> text=Learn')
+await page.waitForSelector('text=Study now')
+console.log('8c. learn:', (await page.textContent('main p.tiny')).trim().slice(0, 60))
+await page.click('text=Study now')
+await page.waitForSelector('text=Tap to reveal')
+await page.click('text=Tap to reveal')
+await page.click('button:has-text("Good")')
+console.log('8d. graded a card')
+await page.click('text=Stop')
 
 await page.click('nav >> text=Settings')
 await page.waitForSelector('text=Check for updates')

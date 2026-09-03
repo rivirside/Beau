@@ -5,11 +5,13 @@ import { useApp, load } from './store'
 import { initServiceWorker } from './update'
 import { Onboarding } from './screens/Onboarding'
 import { Today } from './screens/Today'
+import { Plan } from './screens/Plan'
+import { Learn } from './screens/Learn'
 import { Session } from './screens/Session'
 import { History } from './screens/History'
 import { Settings } from './screens/Settings'
 
-export type Tab = 'today' | 'history' | 'settings'
+export type Tab = 'today' | 'plan' | 'learn' | 'history' | 'settings'
 
 function App() {
   const app = useApp()
@@ -29,12 +31,14 @@ function App() {
     <>
       <main>
         {tab === 'today' && <Today />}
+        {tab === 'plan' && <Plan />}
+        {tab === 'learn' && <Learn />}
         {tab === 'history' && <History />}
         {tab === 'settings' && <Settings />}
       </main>
       <nav>
-        {([['today', '◎', 'Today'], ['history', '≡', 'History'],
-           ['settings', '⚙', 'Settings']] as const).map(([id, glyph, label]) => (
+        {([['today', '◎', 'Today'], ['plan', '▦', 'Plan'], ['learn', '✦', 'Learn'],
+           ['history', '≡', 'History'], ['settings', '⚙', 'Settings']] as const).map(([id, glyph, label]) => (
           <button key={id} class={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
             <span class="glyph">{glyph}</span>{label}
           </button>

@@ -6,6 +6,8 @@ import type { Workout, SetLog } from '../core/types'
 import type { ProgressionState } from '../core/engine/progression'
 import type { ReviewState } from '../core/learn/scheduler'
 import type { MuscleId } from '../taxonomy-shim'
+import type { WeekPlan, VolumePreset } from '../core/engine/plan'
+import { DEFAULT_WEEK } from '../core/engine/plan'
 
 export const SCHEMA_VERSION = 1
 
@@ -29,6 +31,13 @@ export interface Profile {
   /** Show an anatomy card between sets. */
   studyDuringRest: boolean
   restSeconds: number
+  /** Which days, how long, what for. */
+  week: WeekPlan
+  volumePreset: VolumePreset
+  /** Today's reviewed proposal, so a reload mid-review loses nothing. */
+  draft?: { date: string; variantIds: string[]; trainAnyway?: boolean }
+  /** Movements rejected for today only. */
+  skipped?: { date: string; movementIds: string[] }
 }
 
 interface BeauDB extends DBSchema {
@@ -63,10 +72,14 @@ export const DEFAULT_PROFILE: Profile = {
   id: 'me', onboarded: false, displayUnit: 'lb', bodyweightKg: 80,
   defaultGymId: 'default', excludedMovementIds: [], restrictedMuscles: [],
   sessionMinutes: 60, studyDuringRest: true, restSeconds: 120,
+  week: DEFAULT_WEEK, volumePreset: 'standard',
 }
 
 export async function getProfile(): Promise<Profile> {
-  return (await (await db()).get('profile', 'me')) ?? DEFAULT_PROFILE
+  const stored = await (await db()).get('profile', 'me')
+  // Fields added after a profile was first saved fall back to defaults, so an
+  // early tester's profile keeps working as the schema grows.
+  return stored ? { ...DEFAULT_PROFILE, ...stored } : DEFAULT_PROFILE
 }
 
 export async function putProfile(p: Profile) {

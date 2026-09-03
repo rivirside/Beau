@@ -3,7 +3,7 @@ import type { MuscleId } from '../../core/taxonomy/muscles'
 import { generateCards, type Card } from '../../core/learn/cards'
 import { deckForRest } from '../../core/learn/session'
 import { newReviewState, review, Rating, type ReviewState } from '../../core/learn/scheduler'
-import { putReview } from '../db'
+import { useApp, saveReview } from '../store'
 import { fmtClock } from '../format'
 
 /** 1,497 cards from the anatomy graph. Built once, lazily — it is not free and
@@ -18,9 +18,10 @@ export function RestTimer(props: {
   onDone: () => void
   onDismiss: () => void
 }) {
+  const app = useApp()
+  const states: Map<string, ReviewState> = app.reviews
   const [left, setLeft] = useState(props.seconds)
   const [revealed, setRevealed] = useState(false)
-  const [states, setStates] = useState<Map<string, ReviewState>>(new Map())
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -41,16 +42,14 @@ export function RestTimer(props: {
     () => (props.study ? deckForRest(cards(), states, {
       trainedUnits: props.trainedUnits, limit: 6,
     }) : []),
-    [props.study, props.trainedUnits.join(','), states],
+    [props.study, props.trainedUnits.join(',')],
   )
   const card = deck[index % Math.max(1, deck.length)]
 
   const grade = async (rating: Rating.Again | Rating.Good) => {
     if (!card) return
     const prior = states.get(card.id) ?? newReviewState(card.id)
-    const { state } = review(prior, rating)
-    await putReview(state)
-    setStates(new Map(states).set(card.id, state))
+    await saveReview(review(prior, rating).state)
     setRevealed(false)
     setIndex(index + 1)
   }

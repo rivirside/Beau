@@ -6,6 +6,7 @@ import type { Workout, WorkoutEntry, SetLog } from '../core/types'
 import type { ProgressionState } from '../core/engine/progression'
 import { applySession } from '../core/engine/progression'
 import { computeFatigue, type FatigueState } from '../core/engine/fatigue'
+import type { ReviewState } from '../core/learn/scheduler'
 import { buildVariantIndex, type IndexedVariant } from '../core/movements'
 import * as store from './db'
 import type { Profile, Gym } from './db'
@@ -24,6 +25,7 @@ export interface AppState {
   fatigue: FatigueState
   /** The session in progress, if any. Persisted as it goes. */
   active: Workout | null
+  reviews: Map<string, ReviewState>
 }
 
 const EMPTY_FATIGUE: FatigueState = {
@@ -33,6 +35,7 @@ const EMPTY_FATIGUE: FatigueState = {
 let state: AppState = {
   ready: false, profile: store.DEFAULT_PROFILE, gyms: [], workouts: [],
   progression: new Map(), sets: [], fatigue: EMPTY_FATIGUE, active: null,
+  reviews: new Map(),
 }
 let listeners: ((s: AppState) => void)[] = []
 
@@ -57,17 +60,25 @@ function recomputeFatigue(sets: SetLog[], profile: Profile): FatigueState {
 }
 
 export async function load() {
-  const [profile, gyms, workouts, progression] = await Promise.all([
+  const [profile, gyms, workouts, progression, reviews] = await Promise.all([
     store.getProfile(), store.getGyms(), store.getWorkouts(), store.getProgression(),
+    store.getReviews(),
   ])
   const active = workouts.find((w) => !w.endedAt) ?? null
   const finished = workouts.filter((w) => w.endedAt)
   const sets = finished.flatMap((w) => w.entries.flatMap((e) => e.sets))
   set({
-    ready: true, profile, gyms, workouts: finished, progression, sets, active,
+    ready: true, profile, gyms, workouts: finished, progression, sets, active, reviews,
     fatigue: recomputeFatigue(sets, profile),
   })
 }
+
+export async function saveReview(review: ReviewState) {
+  await store.putReview(review)
+  set({ reviews: new Map(state.reviews).set(review.cardId, review) })
+}
+
+export const todayKey = () => new Date().toISOString().slice(0, 10)
 
 export async function saveProfile(patch: Partial<Profile>) {
   const profile = { ...state.profile, ...patch }

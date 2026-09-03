@@ -1,4 +1,5 @@
 import { test } from 'node:test'
+import { focusUnits } from './plan'
 import assert from 'node:assert/strict'
 import type { SetLog } from '../types'
 import { buildVariantIndex } from '../movements'
@@ -147,4 +148,34 @@ test('familiar variants are preferred, so progression can accumulate', () => {
   })
   const chosen = withHistory.exercises.find((e) => e.movement.id === target.id)
   assert.equal(chosen?.variant.id, sibling.variant.id)
+})
+
+test('locked variants are kept and generation fills around them', () => {
+  const first = generateWorkout({ ...base, minutesAvailable: 60 })
+  const keep = first.exercises.slice(0, 2).map((e) => e.variant.id)
+  const banned = new Set(first.exercises.slice(2).map((e) => e.movement.id))
+  const again = generateWorkout({
+    ...base, minutesAvailable: 60, lockedVariantIds: keep, excludedMovementIds: banned,
+  })
+  assert.deepEqual(again.exercises.slice(0, 2).map((e) => e.variant.id), keep)
+  assert.ok(again.exercises.length >= 2)
+  for (const e of again.exercises.slice(2)) assert.ok(!banned.has(e.movement.id))
+})
+
+test('a locked pick never duplicates its movement', () => {
+  const first = generateWorkout({ ...base, minutesAvailable: 90 })
+  const keep = first.exercises[0]!.variant.id
+  const again = generateWorkout({ ...base, minutesAvailable: 90, lockedVariantIds: [keep] })
+  const ids = again.exercises.map((e) => e.movement.id)
+  assert.equal(new Set(ids).size, ids.length)
+})
+
+test('a push focus programs no rows or curls', () => {
+  
+  const w = generateWorkout({ ...base, minutesAvailable: 120, focusUnits: focusUnits('push')! })
+  assert.ok(w.exercises.length > 0)
+  for (const e of w.exercises) {
+    const lead = e.targets[0]!.muscle
+    assert.ok(!['lats', 'rhomboids', 'biceps_long', 'biceps_short'].includes(lead), e.movement.id)
+  }
 })

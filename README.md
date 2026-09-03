@@ -22,7 +22,7 @@ a watchOS companion are the reasons this belongs on the platform.
 | `src/core/movements/` | 93 curated movements → 547 variants, plus the coverage report |
 | `src/core/equipment/` | Equipment catalog and load quantisation |
 | `src/core/engine/` | Fatigue, progression, generation — 45 tests and an 8-week simulation |
-| `src/app/` | The PWA: IndexedDB, screens, service worker, export |
+| `src/app/` | The PWA: Today (review/swap/reject), Plan, Learn, History, Settings |
 | `src/core/anatomy/` | 167 muscles, all 206 bones, 222 landmarks, 59 nerves, 19 joints |
 | `src/core/learn/` | Card generation and FSRS scheduling |
 | `data/` | Vendored exercise dataset and images ([provenance](data/README.md)) |
@@ -44,6 +44,9 @@ Design and data groundwork. No app yet.
 - [x] Fatigue and progression engine
 - [x] Workout generation
 - [x] Logging UI, rest timer with anatomy cards, service worker, export/import
+- [x] Today as a reviewable proposal: swap by similarity, reject with a reason that teaches the app
+- [x] Plan: training days, per-day focus and duration, split templates, volume presets
+- [x] Learn: browse 167 muscles and 206 bones, FSRS study mode
 - [ ] Ask for a starting weight at onboarding instead of calibrating for weeks
 - [ ] Charts, exercise swapping, multi-gym
 
