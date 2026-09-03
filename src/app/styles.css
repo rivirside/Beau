@@ -69,7 +69,7 @@ main.bare { padding-bottom: 24px; }
 .row .label .sub { font-size: 13px; color: var(--secondary); }
 .row .value { color: var(--secondary); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .row .value.accent { color: var(--label); }
-.row .chevron { color: var(--tertiary); width: 8px; height: 13px; }
+.chevron { color: var(--tertiary); width: 8px; height: 13px; flex: none; }
 .row.button { justify-items: center; grid-template-columns: 1fr; color: var(--blue); text-align: center; }
 .row.button.destructive { color: var(--red); }
 .row.button.primary { background: var(--blue); color: #fff; font-weight: 600; }
@@ -143,6 +143,10 @@ main.bare { padding-bottom: 24px; }
 .grid2 .btn { width: 100%; margin: 0; }
 .grid2 .btn small { display: block; font-size: 12px; font-weight: 400; color: var(--secondary); }
 .spacer { height: 16px; }
+
+/* An SVG with no width/height is sized differently by Safari and Chromium, so
+   never let one depend on a class selector matching. */
+svg { flex: none; }
 
 /* ------------------------------------------------- expandable exercise cards */
 .xcard { background: var(--group); border-radius: var(--radius); margin: 0 16px 10px; overflow: hidden; }

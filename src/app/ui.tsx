@@ -5,7 +5,7 @@ import type { ComponentChildren } from 'preact'
 import { pop, useNav } from './nav'
 
 const Chevron = () => (
-  <svg class="chevron" viewBox="0 0 8 13" fill="none">
+  <svg class="chevron" width="8" height="13" viewBox="0 0 8 13" fill="none">
     <path d="M1 1l5.5 5.5L1 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 )
@@ -20,7 +20,7 @@ export function Page(props: { title: string; subtitle?: string; trailing?: Compo
       <div class="navbar">
         <div>{pushed && (
           <button class="back" onClick={pop}>
-            <svg viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
             Back
           </button>
         )}</div>
@@ -130,8 +130,8 @@ export function ActionSheet(props: { title?: string; actions: { label: string; d
 }
 
 export const Icons = {
-  today: <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="20" height="18" rx="3"/><path d="M3 10h20M8 3v4M18 3v4"/><circle cx="13" cy="16" r="2.2" fill="currentColor" stroke="none"/></svg>,
-  progress: <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 21h18"/><path d="M6 17l5-6 4 3 5-8"/></svg>,
-  learn: <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H21v17H6.5A2.5 2.5 0 004 22.5z"/><path d="M4 20a2.5 2.5 0 012.5-2.5H21"/></svg>,
-  settings: <svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13" cy="13" r="3.2"/><path d="M13 2.5v3M13 20.5v3M2.5 13h3M20.5 13h3M5.6 5.6l2.1 2.1M18.3 18.3l2.1 2.1M5.6 20.4l2.1-2.1M18.3 7.7l2.1-2.1"/></svg>,
+  today: <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="20" height="18" rx="3"/><path d="M3 10h20M8 3v4M18 3v4"/><circle cx="13" cy="16" r="2.2" fill="currentColor" stroke="none"/></svg>,
+  progress: <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 21h18"/><path d="M6 17l5-6 4 3 5-8"/></svg>,
+  learn: <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H21v17H6.5A2.5 2.5 0 004 22.5z"/><path d="M4 20a2.5 2.5 0 012.5-2.5H21"/></svg>,
+  settings: <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="13" cy="13" r="3.2"/><path d="M13 2.5v3M13 20.5v3M2.5 13h3M20.5 13h3M5.6 5.6l2.1 2.1M18.3 18.3l2.1 2.1M5.6 20.4l2.1-2.1M18.3 7.7l2.1-2.1"/></svg>,
 }

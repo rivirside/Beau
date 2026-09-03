@@ -14,7 +14,7 @@ import { PlanPage } from './Plan'
 import { MuscleDetailPage } from './Learn'
 
 const Caret = () => (
-  <svg class="caret" viewBox="0 0 13 8" fill="none">
+  <svg class="caret" width="13" height="8" viewBox="0 0 13 8" fill="none">
     <path d="M1 1l5.5 5.5L12 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 )
@@ -126,7 +126,7 @@ function ExerciseCard({ pick, open, onToggle }: { pick: PickedExercise; open: bo
                       <div class="mbar"><Bar value={v} color="var(--blue)" /></div>
                     </div>
                     <span class="mval">{Math.round(v * 100)}%</span>
-                    <svg class="chevron" viewBox="0 0 8 13" fill="none"><path d="M1 1l5.5 5.5L1 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+                    <svg class="chevron" width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M1 1l5.5 5.5L1 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
                   </button>
                 ))}
 

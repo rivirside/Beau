@@ -37,7 +37,16 @@ const before = await page.$$eval('.xcard', (n) => n.length)
 await page.click('.xcard >> nth=0 >> .xcard-head')
 await page.waitForSelector('.xcard.open')
 const openCount = await page.$$eval('.xcard.open', (n) => n.length)
-step(5, `expanded in place (${openCount} open of ${before}), still on ` + await page.textContent('h1.large-title'))
+const geom = await page.evaluate(() => {
+  const card = document.querySelector('.xcard.open')
+  const svgs = [...card.querySelectorAll('svg')].map((s) => s.getBoundingClientRect())
+  return { h: Math.round(card.getBoundingClientRect().height),
+           maxSvg: Math.round(Math.max(...svgs.map((r) => Math.max(r.width, r.height)))) }
+})
+step(5, `expanded in place (${openCount} of ${before}), card ${geom.h}px, largest svg ${geom.maxSvg}px, still on ` + await page.textContent('h1.large-title'))
+// An unsized SVG renders at its default intrinsic size and blows the card open.
+if (geom.maxSvg > 64) errors.push(`an svg rendered ${geom.maxSvg}px — check explicit width/height`)
+if (geom.h > 900) errors.push(`expanded card is ${geom.h}px tall — layout has blown out`)
 await page.click('.xcard.open .actions button:has-text("Swap")')
 await page.waitForSelector('.xcard.open .alt')
 const alts = await page.$$eval('.xcard.open .alt', (n) => n.length)
