@@ -73,6 +73,20 @@ export async function load() {
   })
 }
 
+/** Onboarding: a known working weight becomes a progression state, so the first
+ *  session is not a cold start on the lifts that matter most. */
+export async function seedProgression(variantId: string, weightKg: number, reps: number) {
+  const { estimate1rm } = await import('../core/engine/progression')
+  const now = new Date().toISOString()
+  const s: ProgressionState = {
+    variantId, estimated1rmKg: estimate1rm(weightKg, reps, 1) ?? weightKg,
+    lastWorkingWeightKg: weightKg, lastTopSetReps: reps, consecutiveStalls: 0,
+    updatedAt: now, sessions: 1,
+  }
+  await store.putProgression(s)
+  set({ progression: new Map(state.progression).set(variantId, s) })
+}
+
 export async function saveReview(review: ReviewState) {
   await store.putReview(review)
   set({ reviews: new Map(state.reviews).set(review.cardId, review) })

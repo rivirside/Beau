@@ -4,6 +4,7 @@ import type { MuscleId } from '../../core/taxonomy/muscles'
 import { useApp, updateActive, finishWorkout, abandonWorkout, VARIANTS } from '../store'
 import { fmtWeight, toDisplay, fromDisplay } from '../format'
 import { RestTimer } from '../components/RestTimer'
+import { Group, ActionSheet } from '../ui'
 
 export function Session() {
   const app = useApp()
@@ -58,96 +59,56 @@ export function Session() {
   const planned = workout.entries.reduce((n, e) => n + (e.prescribed?.sets ?? 3), 0)
 
   return (
-    <main>
-      <div class="spread">
-        <h1 style="margin:0">Session</h1>
-        <span class="pill">{totalSets}/{planned} sets</span>
-      </div>
+    <main class="bare">
+      <div class="navbar"><div /><div class="title">Session</div><div class="trailing"><span class="secondary mono">{totalSets}/{planned} sets</span></div></div>
+      <h1 class="large-title">Session</h1>
+      <p class="subtitle">Every set is saved the moment you log it.</p>
 
       {workout.entries.map((entry) => {
         const indexed = VARIANTS.get(entry.variantId)
         const target = entry.prescribed
         const rows = Math.max(target?.sets ?? 3, entry.sets.length + 1)
-
+        // A loaded movement with no weight is missing data, not zero load; the
+        // engine would score it as nothing. Bodyweight movements are exempt.
+        const needsWeight = !indexed?.movement.bodyweightFactor
+        const sub = target ? `${target.sets}×${target.repRange[0]}–${target.repRange[1]} @ ${target.firstTime ? 'your call — first time' : target.targetKg ? fmtWeight(target.targetKg, unit) : 'bodyweight'} · RIR ${target.targetRir}` : ''
         return (
-          <div class="card" key={entry.id}>
-            <div class="spread">
-              <strong>{indexed?.variant.displayName ?? entry.variantId}</strong>
-              <button class="ghost tiny" style="min-height:32px;padding:4px 8px"
-                      onClick={() => void removeEntry(entry.id)}>Skip</button>
-            </div>
-            {target && (
-              <p class="tiny" style="margin:4px 0 10px">
-                {target.sets}×{target.repRange[0]}–{target.repRange[1]} @{' '}
-                {target.firstTime ? 'your call — first time'
-                  : target.targetKg ? fmtWeight(target.targetKg, unit) : 'bodyweight'}
-                {' '}· RIR {target.targetRir}
-              </p>
-            )}
-
+          <Group key={entry.id} header={indexed?.variant.displayName ?? entry.variantId} footer={sub}>
             {Array.from({ length: rows }, (_, i) => {
               const done = entry.sets[i]
               const k = keyFor(entry.id, i)
               const cold = target?.firstTime === true
-              const d = draft[k] ?? {
-                w: target?.targetKg && !cold
-                  ? String(Math.round(toDisplay(target.targetKg, unit) * 2) / 2) : '',
-                r: '', rir: String(target?.targetRir ?? 2),
-              }
-              if (done) {
-                return (
-                  <div class="set-row done" key={i}>
-                    <span class="n">{i + 1}</span>
-                    <span class="tiny center">
-                      {done.weightKg ? fmtWeight(done.weightKg, unit) : 'BW'}
-                    </span>
-                    <span class="tiny center">{done.reps} reps</span>
-                    <span class="tiny center">
-                      {done.rir === undefined ? '—' : `RIR ${done.rir}`}
-                    </span>
-                    {i === entry.sets.length - 1
-                      ? <button class="ghost" style="min-height:36px;padding:4px"
-                                onClick={() => void undoSet(entry.id)}>↺</button>
-                      : <span />}
-                  </div>
-                )
-              }
+              const d = draft[k] ?? { w: target?.targetKg && !cold ? String(Math.round(toDisplay(target.targetKg, unit) * 2) / 2) : '', r: '', rir: String(target?.targetRir ?? 2) }
+              if (done) return (
+                <div class="set-grid" key={i}>
+                  <span class="n">{i + 1}</span>
+                  <span class="done">{done.weightKg ? fmtWeight(done.weightKg, unit) : 'BW'}</span>
+                  <span class="done">{done.reps} reps</span>
+                  <span class="done">{done.rir === undefined ? '—' : `RIR ${done.rir}`}</span>
+                  {i === entry.sets.length - 1 ? <button class="done" style="color:var(--blue)" onClick={() => void undoSet(entry.id)}>↺</button> : <span />}
+                </div>
+              )
               const isNext = i === entry.sets.length
               return (
-                <div class="set-row" key={i} style={isNext ? '' : 'opacity:0.4'}>
+                <div class="set-grid" key={i} style={isNext ? '' : 'opacity:.35'}>
                   <span class="n">{i + 1}</span>
-                  <input type="number" inputMode="decimal"
-                         placeholder={target?.firstTime && isNext ? 'weight?' : unit} value={d.w}
-                         disabled={!isNext}
-                         onInput={(e) => setDraft({ ...draft,
-                           [k]: { ...d, w: (e.target as HTMLInputElement).value } })} />
-                  <input type="number" inputMode="numeric" placeholder="reps" value={d.r}
-                         disabled={!isNext}
-                         onInput={(e) => setDraft({ ...draft,
-                           [k]: { ...d, r: (e.target as HTMLInputElement).value } })} />
-                  <input type="number" inputMode="numeric" placeholder="RIR" value={d.rir}
-                         disabled={!isNext}
-                         onInput={(e) => setDraft({ ...draft,
-                           [k]: { ...d, rir: (e.target as HTMLInputElement).value } })} />
-                  <button class="primary" style="min-height:40px;padding:4px"
-                          disabled={!isNext || !d.r}
-                          onClick={() => void logSet(entry.id, i)}>✓</button>
+                  <input type="number" inputMode="decimal" placeholder={target?.firstTime && isNext ? 'weight?' : unit} value={d.w} disabled={!isNext} onInput={(e) => setDraft({ ...draft, [k]: { ...d, w: (e.target as HTMLInputElement).value } })} />
+                  <input type="number" inputMode="numeric" placeholder="reps" value={d.r} disabled={!isNext} onInput={(e) => setDraft({ ...draft, [k]: { ...d, r: (e.target as HTMLInputElement).value } })} />
+                  <input type="number" inputMode="numeric" placeholder="RIR" value={d.rir} disabled={!isNext} onInput={(e) => setDraft({ ...draft, [k]: { ...d, rir: (e.target as HTMLInputElement).value } })} />
+                  <button class="go" disabled={!isNext || !d.r || (needsWeight && !d.w)} onClick={() => void logSet(entry.id, i)}>✓</button>
                 </div>
               )
             })}
-          </div>
+            <button class="row button" style="min-height:40px;color:var(--secondary);font-size:14px" onClick={() => void removeEntry(entry.id)}>Skip this exercise</button>
+          </Group>
         )
       })}
 
-      <div class="row" style="margin-top:12px">
-        <button class="danger" onClick={() => setConfirmEnd(true)}>Discard</button>
-        <button class="primary" style="flex:1" onClick={() => void finishWorkout()}>
-          Finish session
-        </button>
-      </div>
-      <p class="tiny" style="margin-top:10px">
-        Every set is saved as you log it — closing the app will not lose anything.
-      </p>
+      <div class="spacer" />
+      <button class="btn primary" onClick={() => void finishWorkout()}>Finish session</button>
+      <div class="spacer" />
+      <button class="btn destructive" onClick={() => setConfirmEnd(true)}>Discard session</button>
+      <div class="spacer" />
 
       {resting && (
         <RestTimer seconds={app.profile.restSeconds} trainedUnits={resting}
@@ -156,21 +117,8 @@ export function Session() {
       )}
 
       {confirmEnd && (
-        <div class="sheet" onClick={(e) => {
-          if (e.target === e.currentTarget) setConfirmEnd(false)
-        }}>
-          <div>
-            <strong>Discard this session?</strong>
-            <p class="muted">Every set you logged in it will be deleted. This cannot be undone.</p>
-            <div class="row" style="margin-top:12px">
-              <button style="flex:1" onClick={() => setConfirmEnd(false)}>Keep going</button>
-              <button class="danger" style="flex:1"
-                      onClick={() => { setConfirmEnd(false); void abandonWorkout() }}>
-                Discard
-              </button>
-            </div>
-          </div>
-        </div>
+        <ActionSheet title="Discard this session? Every set logged in it is deleted." onCancel={() => setConfirmEnd(false)}
+          actions={[{ label: 'Discard session', destructive: true, onPress: () => { setConfirmEnd(false); void abandonWorkout() } }]} />
       )}
     </main>
   )

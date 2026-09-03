@@ -56,24 +56,22 @@ export function RestTimer(props: {
 
   return (
     <div class="sheet" onClick={(e) => { if (e.target === e.currentTarget) props.onDismiss() }}>
-      <div>
+      <div style="background:var(--group);border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))">
         <div class="timer">{fmtClock(left)}</div>
-        <div class="row" style="margin-top:12px">
-          <button style="flex:1" onClick={() => setLeft((l) => l + 30)}>+30s</button>
-          <button class="primary" style="flex:1" onClick={props.onDismiss}>Skip rest</button>
+        <div class="grid2" style="padding:0">
+          <button class="btn" onClick={() => setLeft((l) => l + 30)}>+30s</button>
+          <button class="btn primary" onClick={props.onDismiss}>Skip rest</button>
         </div>
 
         {/* A rest period is 90–180 seconds with the phone already in hand: the
             best spaced-repetition slot anyone gets, and normally wasted. */}
         {card && (
           <>
-            <div class="divider" />
-            <div class="tiny" style="margin-bottom:8px">
+            <div class="tiny" style="margin:18px 0 8px">
               While you rest — {card.reviewStatus !== 'verified' && 'unverified draft · '}
               anatomy of what you just trained
             </div>
-            <div class="card" onClick={() => setRevealed(true)}
-                 style="min-height:110px;cursor:pointer">
+            <div class="card-face" onClick={() => setRevealed(true)} style="margin:0;background:var(--group-2);min-height:110px;cursor:pointer">
               <div dangerouslySetInnerHTML={{
                 __html: card.front.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
               }} />
@@ -84,9 +82,9 @@ export function RestTimer(props: {
                 : <p class="tiny" style="margin-top:14px">Tap to reveal</p>}
             </div>
             {revealed && (
-              <div class="row">
-                <button style="flex:1" onClick={() => void grade(Rating.Again)}>Again</button>
-                <button style="flex:1" onClick={() => void grade(Rating.Good)}>Got it</button>
+              <div class="grid2" style="padding:0;margin-top:8px">
+                <button class="btn" style="background:var(--group-2)" onClick={() => void grade(Rating.Again)}>Again</button>
+                <button class="btn" style="background:var(--group-2)" onClick={() => void grade(Rating.Good)}>Got it</button>
               </div>
             )}
           </>

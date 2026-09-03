@@ -31,6 +31,8 @@ export interface Profile {
   /** Show an anatomy card between sets. */
   studyDuringRest: boolean
   restSeconds: number
+  /** Sets default volume and how the first sessions are pitched. */
+  experience: 'new' | 'intermediate' | 'advanced'
   /** Which days, how long, what for. */
   week: WeekPlan
   volumePreset: VolumePreset
@@ -72,7 +74,7 @@ export const DEFAULT_PROFILE: Profile = {
   id: 'me', onboarded: false, displayUnit: 'lb', bodyweightKg: 80,
   defaultGymId: 'default', excludedMovementIds: [], restrictedMuscles: [],
   sessionMinutes: 60, studyDuringRest: true, restSeconds: 120,
-  week: DEFAULT_WEEK, volumePreset: 'standard',
+  experience: 'intermediate', week: DEFAULT_WEEK, volumePreset: 'standard',
 }
 
 export async function getProfile(): Promise<Profile> {

@@ -1,47 +1,40 @@
 import { render } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect } from 'preact/hooks'
 import './styles.css'
 import { useApp, load } from './store'
 import { initServiceWorker } from './update'
+import { useNav, setTab, type Tab } from './nav'
+import { Icons } from './ui'
 import { Onboarding } from './screens/Onboarding'
 import { Today } from './screens/Today'
-import { Plan } from './screens/Plan'
+import { Progress } from './screens/Progress'
 import { Learn } from './screens/Learn'
-import { Session } from './screens/Session'
-import { History } from './screens/History'
 import { Settings } from './screens/Settings'
+import { Session } from './screens/Session'
 
-export type Tab = 'today' | 'plan' | 'learn' | 'history' | 'settings'
+const ROOTS: Record<Tab, () => preact.JSX.Element> = { today: Today, progress: Progress, learn: Learn, settings: Settings }
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'today', label: 'Today' }, { id: 'progress', label: 'Progress' },
+  { id: 'learn', label: 'Learn' }, { id: 'settings', label: 'Settings' },
+]
 
 function App() {
   const app = useApp()
-  const [tab, setTab] = useState<Tab>('today')
-
+  const { tab, top } = useNav()
   useEffect(() => { void load() }, [])
 
-  if (!app.ready) {
-    return <main><p class="muted" style="margin-top:40vh;text-align:center">Loading…</p></main>
-  }
+  if (!app.ready) return <main class="bare"><p class="p" style="margin-top:40vh;text-align:center">Loading…</p></main>
   if (!app.profile.onboarded) return <Onboarding />
-  // A session in progress takes over the whole app: mid-workout there is
-  // nothing else worth looking at.
+  // A session in progress takes over: mid-workout there is nothing else worth seeing.
   if (app.active) return <Session />
 
+  const Root = ROOTS[tab]
   return (
     <>
-      <main>
-        {tab === 'today' && <Today />}
-        {tab === 'plan' && <Plan />}
-        {tab === 'learn' && <Learn />}
-        {tab === 'history' && <History />}
-        {tab === 'settings' && <Settings />}
-      </main>
-      <nav>
-        {([['today', '◎', 'Today'], ['plan', '▦', 'Plan'], ['learn', '✦', 'Learn'],
-           ['history', '≡', 'History'], ['settings', '⚙', 'Settings']] as const).map(([id, glyph, label]) => (
-          <button key={id} class={tab === id ? 'active' : ''} onClick={() => setTab(id)}>
-            <span class="glyph">{glyph}</span>{label}
-          </button>
+      {top ? top.render() : <Root />}
+      <nav class="tabbar">
+        {TABS.map((t) => (
+          <button key={t.id} class={tab === t.id ? 'on' : ''} onClick={() => setTab(t.id)}>{Icons[t.id]}{t.label}</button>
         ))}
       </nav>
     </>

@@ -1,211 +1,165 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import { EQUIPMENT_TYPES } from '../../core/equipment/catalog'
+import { DAY_NAMES } from '../../core/engine/plan'
 import { useApp, saveProfile, saveGym, currentGym, reloadEverything } from '../store'
 import { downloadExport, importExport } from '../export'
 import { clearAll } from '../db'
-import { onUpdateStatus, checkForUpdate, applyPendingUpdate, forceReload, APP_VERSION,
-         type UpdateStatus } from '../update'
+import { onUpdateStatus, checkForUpdate, applyPendingUpdate, forceReload, APP_VERSION, type UpdateStatus } from '../update'
 import { toDisplay, fromDisplay } from '../format'
+import { Page, Group, Row, ButtonRow, ToggleRow, InputRow, Custom, Segmented, ActionSheet } from '../ui'
+import { push } from '../nav'
+import { PlanPage } from './Plan'
 
 export function Settings() {
   const app = useApp()
   const gym = currentGym()
-  const unit = app.profile.displayUnit
+  const days = Object.keys(app.profile.week).map(Number).sort()
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
-  const [message, setMessage] = useState<string | null>(null)
-  const [confirmWipe, setConfirmWipe] = useState(false)
-  const fileInput = useRef<HTMLInputElement>(null)
-
   useEffect(() => onUpdateStatus(setStatus), [])
-
-  const onImport = async (e: Event) => {
-    const file = (e.target as HTMLInputElement).files?.[0]
-    if (!file) return
-    try {
-      const result = await importExport(JSON.parse(await file.text()))
-      await reloadEverything()
-      setMessage(`Imported ${result.workouts} sessions and ${result.sets} sets.`)
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Could not read that file.')
-    } finally {
-      if (fileInput.current) fileInput.current.value = ''
-    }
-  }
-
-  const updateLabel: Record<UpdateStatus['state'], string> = {
-    idle: 'Check for updates',
-    checking: 'Checking…',
-    current: 'Check for updates',
-    available: 'Downloading update…',
-    ready: 'Install update and reload',
-    error: 'Try again',
-    unsupported: 'Updates unavailable',
-  }
+  const go = (key: string, title: string, render: () => preact.JSX.Element) => () => push({ key, title, render })
 
   return (
-    <>
-      <h1>Settings</h1>
+    <Page title="Settings">
+      <Group>
+        <Row label="You" sub={`${app.profile.displayUnit === 'lb' ? 'Pounds' : 'Kilograms'} · ${Math.round(toDisplay(app.profile.bodyweightKg, app.profile.displayUnit))} ${app.profile.displayUnit} · ${app.profile.experience}`} onPress={go('you', 'You', () => <YouPage />)} />
+      </Group>
+      <Group header="Training">
+        <Row label="Training plan" value={`${days.length} days`} onPress={go('plan', 'Training plan', () => <PlanPage />)} />
+        <Row label="Gym & equipment" value={`${gym?.equipmentTypeIds.length ?? 0} items`} onPress={go('gym', 'Gym & equipment', () => <GymPage />)} />
+        <Row label="Preferences" sub="Rest timer, anatomy cards, session length" onPress={go('prefs', 'Preferences', () => <PreferencesPage />)} />
+      </Group>
+      <Group header="App">
+        <Row label="Your data" sub="Export, import" onPress={go('data', 'Your data', () => <DataPage />)} />
+        <Row label="Updates" value={status.state === 'ready' ? 'Update ready' : status.state === 'available' ? 'Downloading' : ''} accentValue onPress={go('updates', 'Updates', () => <UpdatesPage />)} />
+        <Row label="About Beau" onPress={go('about', 'About', () => <AboutPage />)} />
+      </Group>
+      <div class="spacer" />
+    </Page>
+  )
+}
 
-      <h2>Updates</h2>
-      <div class="card">
-        <button class={status.state === 'ready' ? 'primary wide' : 'wide'}
-                disabled={status.state === 'checking' || status.state === 'unsupported'}
-                onClick={() => {
-                  if (status.state === 'ready') void applyPendingUpdate()
-                  else void checkForUpdate()
-                }}>
-          {updateLabel[status.state]}
-        </button>
-        <p class="tiny" style="margin:10px 0 0">
-          {status.state === 'ready' &&
-            `Version ${status.version ?? ''} is downloaded and waiting. Installing reloads the app — your data is untouched.`}
-          {status.state === 'available' &&
-            `Version ${status.version} is on the server; fetching it now. If this does not turn into an install button within a few seconds, use “Reload latest” below.`}
-          {status.state === 'current' &&
-            `You are on the latest version. Checked ${new Date(status.checkedAt).toLocaleTimeString()}.`}
-          {status.state === 'error' &&
-            (status.offlineHint
-              ? `Could not reach the server and the browser reports no connection. (${status.message})`
-              : `Could not check: ${status.message}`)}
-          {status.state === 'unsupported' &&
-            'This browser has no service worker, so the app cannot update itself here. Reload the page instead.'}
-          {(status.state === 'idle' || status.state === 'checking') &&
-            'Beau never updates itself mid-session. It only changes when you ask it to.'}
-        </p>
-        <p class="tiny" style="margin:8px 0 0">Running version {APP_VERSION}</p>
-        {(status.state === 'available' || status.state === 'error') && (
-          <button class="ghost wide" style="margin-top:10px" onClick={() => void forceReload()}>
-            Reload latest (clears app cache, keeps your data)
-          </button>
-        )}
-      </div>
+function YouPage() {
+  const app = useApp()
+  const unit = app.profile.displayUnit
+  return (
+    <Page title="You">
+      <Group header="Units"><Custom><Segmented options={[{ id: 'lb', label: 'Pounds' }, { id: 'kg', label: 'Kilograms' }]} value={unit} onChange={(u) => void saveProfile({ displayUnit: u })} /></Custom></Group>
+      <Group header="Body" footer="Used to score push-ups, dips and pull-ups.">
+        <InputRow label="Bodyweight" unit={unit} value={Math.round(toDisplay(app.profile.bodyweightKg, unit) * 10) / 10}
+                  onCommit={(v) => { const n = parseFloat(v); if (Number.isFinite(n)) void saveProfile({ bodyweightKg: fromDisplay(n, unit) }) }} />
+      </Group>
+      <Group header="Experience" footer="Changes the default weekly volume. Your plan's volume preset overrides it.">
+        {([['new', 'New to lifting'], ['intermediate', 'Intermediate'], ['advanced', 'Advanced']] as const).map(([id, l]) => (
+          <Row key={id} label={l} value={app.profile.experience === id ? '✓' : ''} accentValue chevron={false} onPress={() => void saveProfile({ experience: id })} />
+        ))}
+      </Group>
+    </Page>
+  )
+}
 
-      <h2>Your data</h2>
-      <div class="card">
-        <p class="tiny" style="margin:0 0 10px">
-          Everything lives in this browser. Export is the only way it leaves — and the
-          only way it survives a cleared cache or a move to another device.
-        </p>
-        <div class="row">
-          <button style="flex:1" onClick={() => void downloadExport()}>Export JSON</button>
-          <button style="flex:1" onClick={() => fileInput.current?.click()}>Import</button>
-        </div>
-        <input ref={fileInput} type="file" accept="application/json,.json"
-               style="display:none" onChange={onImport} />
-        {message && <p class="tiny" style="margin:10px 0 0">{message}</p>}
-      </div>
-
-      <h2>Training</h2>
-      <div class="card">
-        <div class="field">
-          <label>Units</label>
-          <div class="row">
-            {(['lb', 'kg'] as const).map((u) => (
-              <button key={u} class={unit === u ? 'pill on' : 'pill'}
-                      style="flex:1;min-height:42px"
-                      onClick={() => void saveProfile({ displayUnit: u })}>
-                {u === 'lb' ? 'Pounds' : 'Kilograms'}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div class="field">
-          <label>Bodyweight ({unit})</label>
-          <input type="number" inputMode="decimal"
-                 value={Math.round(toDisplay(app.profile.bodyweightKg, unit) * 10) / 10}
-                 onChange={(e) => {
-                   const v = parseFloat((e.target as HTMLInputElement).value)
-                   if (Number.isFinite(v)) void saveProfile({ bodyweightKg: fromDisplay(v, unit) })
-                 }} />
-        </div>
-        <div class="field">
-          <label>Session length (minutes)</label>
-          <input type="number" inputMode="numeric" value={app.profile.sessionMinutes}
-                 onChange={(e) => {
-                   const v = parseInt((e.target as HTMLInputElement).value, 10)
-                   if (Number.isFinite(v)) void saveProfile({ sessionMinutes: v })
-                 }} />
-        </div>
-        <div class="field">
-          <label>Rest timer (seconds)</label>
-          <input type="number" inputMode="numeric" value={app.profile.restSeconds}
-                 onChange={(e) => {
-                   const v = parseInt((e.target as HTMLInputElement).value, 10)
-                   if (Number.isFinite(v)) void saveProfile({ restSeconds: v })
-                 }} />
-        </div>
-        <div class="spread">
-          <div>
-            <strong style="font-size:15px">Anatomy cards while resting</strong>
-            <div class="tiny">Quiz you on the muscles you just trained.</div>
-          </div>
-          <button class={app.profile.studyDuringRest ? 'pill on' : 'pill'}
-                  style="min-height:36px"
-                  onClick={() => void saveProfile({ studyDuringRest: !app.profile.studyDuringRest })}>
-            {app.profile.studyDuringRest ? 'On' : 'Off'}
-          </button>
-        </div>
-      </div>
-
-      <h2>Equipment</h2>
-      <div class="card">
-        <p class="tiny" style="margin:0 0 10px">
-          Only what is selected can be prescribed, and weights round to what these can
-          actually produce.
-        </p>
-        <div class="row wrap">
-          {EQUIPMENT_TYPES.map((e) => {
+function GymPage() {
+  const app = useApp()
+  const gym = currentGym()
+  const cats = [...new Set(EQUIPMENT_TYPES.map((e) => e.category))]
+  const labels: Record<string, string> = { free_weight: 'Free weights', cable: 'Cables', machine: 'Machines', bodyweight: 'Bodyweight', support: 'Benches & racks', accessory: 'Accessories' }
+  return (
+    <Page title="Gym & equipment" subtitle="Only what is on can be prescribed. Weights round to what these produce.">
+      {cats.map((c) => (
+        <Group key={c} header={labels[c] ?? c}>
+          {EQUIPMENT_TYPES.filter((e) => e.category === c).map((e) => {
             const on = gym?.equipmentTypeIds.includes(e.id) ?? false
-            return (
-              <button key={e.id} class={on ? 'pill on' : 'pill'} style="min-height:34px"
-                      onClick={() => {
-                        if (!gym) return
-                        const next = on
-                          ? gym.equipmentTypeIds.filter((x) => x !== e.id)
-                          : [...gym.equipmentTypeIds, e.id]
-                        void saveGym({ ...gym, equipmentTypeIds: next })
-                      }}>{e.name}</button>
-            )
+            return <ToggleRow key={e.id} label={e.name} on={on} onChange={(v) => { if (!gym) return; void saveGym({ ...gym, equipmentTypeIds: v ? [...gym.equipmentTypeIds, e.id] : gym.equipmentTypeIds.filter((x) => x !== e.id) }) }} />
           })}
-        </div>
-      </div>
-
-      <h2>About</h2>
-      <div class="card">
-        <p class="tiny" style="margin:0">
-          Beau is a prototype. The training engine is complete and tested; the anatomy
-          library is unverified draft content and is marked as such on the cards — do
-          not study from it for an exam yet.
-        </p>
-      </div>
-
-      <div class="card" style="margin-top:10px">
-        <button class="danger wide" onClick={() => setConfirmWipe(true)}>
-          Delete everything
-        </button>
-      </div>
-
-      {confirmWipe && (
-        <div class="sheet" onClick={(e) => {
-          if (e.target === e.currentTarget) setConfirmWipe(false)
-        }}>
-          <div>
-            <strong>Delete all data?</strong>
-            <p class="muted">
-              Every session, every set, and all progression. There is no undo and no
-              backup on a server — export first if you might want it back.
-            </p>
-            <div class="row" style="margin-top:12px">
-              <button style="flex:1" onClick={() => setConfirmWipe(false)}>Cancel</button>
-              <button class="danger" style="flex:1" onClick={async () => {
-                setConfirmWipe(false)
-                await clearAll()
-                await reloadEverything()
-              }}>Delete everything</button>
-            </div>
-          </div>
-        </div>
+        </Group>
+      ))}
+      <div class="spacer" />
+      {app.profile.excludedMovementIds.length > 0 && (
+        <Group header="Never show" footer="Exercises you rejected permanently. Tap to allow again.">
+          {app.profile.excludedMovementIds.map((id) => <Row key={id} label={id.replace(/_/g, ' ')} chevron={false} onPress={() => void saveProfile({ excludedMovementIds: app.profile.excludedMovementIds.filter((x) => x !== id) })}><span class="value" style="color:var(--blue)">Allow</span></Row>)}
+        </Group>
       )}
-    </>
+    </Page>
+  )
+}
+
+function PreferencesPage() {
+  const app = useApp()
+  return (
+    <Page title="Preferences">
+      <Group header="Session">
+        <InputRow label="Default length" unit="min" inputMode="numeric" value={app.profile.sessionMinutes} onCommit={(v) => { const n = parseInt(v, 10); if (n > 0) void saveProfile({ sessionMinutes: n }) }} />
+        <InputRow label="Rest timer" unit="sec" inputMode="numeric" value={app.profile.restSeconds} onCommit={(v) => { const n = parseInt(v, 10); if (n > 0) void saveProfile({ restSeconds: n }) }} />
+      </Group>
+      <Group header="Learning" footer="Between sets, a card about the muscle you just trained. Ninety seconds with the phone already in hand.">
+        <ToggleRow label="Anatomy cards while resting" on={app.profile.studyDuringRest} onChange={(v) => void saveProfile({ studyDuringRest: v })} />
+      </Group>
+    </Page>
+  )
+}
+
+function DataPage() {
+  const [message, setMessage] = useState<string | null>(null)
+  const [confirm, setConfirm] = useState(false)
+  const file = useRef<HTMLInputElement>(null)
+  const onImport = async (e: Event) => {
+    const f = (e.target as HTMLInputElement).files?.[0]
+    if (!f) return
+    try { const r = await importExport(JSON.parse(await f.text())); await reloadEverything(); setMessage(`Imported ${r.workouts} sessions and ${r.sets} sets.`) }
+    catch (err) { setMessage(err instanceof Error ? err.message : 'Could not read that file.') }
+    finally { if (file.current) file.current.value = '' }
+  }
+  return (
+    <Page title="Your data">
+      <Group footer={message ?? 'Everything lives in this browser. Export is the only way it leaves — and the only way it survives a cleared cache or a move to another device. Import replaces everything.'}>
+        <ButtonRow label="Export JSON" onPress={() => void downloadExport()} />
+        <ButtonRow label="Import…" onPress={() => file.current?.click()} />
+        <input ref={file} type="file" accept="application/json,.json" style="display:none" onChange={onImport} />
+      </Group>
+      <Group footer="Every session, every set, all progression. No undo, no backup on a server.">
+        <ButtonRow label="Delete everything" destructive onPress={() => setConfirm(true)} />
+      </Group>
+      {confirm && <ActionSheet title="Delete all data? Export first if you might want it back." onCancel={() => setConfirm(false)}
+        actions={[{ label: 'Delete everything', destructive: true, onPress: async () => { setConfirm(false); await clearAll(); await reloadEverything(); history.go(-1) } }]} />}
+    </Page>
+  )
+}
+
+function UpdatesPage() {
+  const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
+  useEffect(() => onUpdateStatus(setStatus), [])
+  const label: Record<UpdateStatus['state'], string> = { idle: 'Check for updates', checking: 'Checking…', current: 'Check again', available: 'Downloading update…', ready: 'Install update and reload', error: 'Try again', unsupported: 'Updates unavailable' }
+  const note = status.state === 'ready' ? `Version ${status.version ?? ''} is downloaded and waiting. Installing reloads the app — your data is untouched.`
+    : status.state === 'available' ? `Version ${status.version} is on the server; fetching it. If this does not become an install button within a few seconds, use Reload latest.`
+    : status.state === 'current' ? `You are on the latest version. Checked ${new Date(status.checkedAt).toLocaleTimeString()}.`
+    : status.state === 'error' ? (status.offlineHint ? `Could not reach the server and the browser reports no connection. (${status.message})` : `Could not check: ${status.message}`)
+    : status.state === 'unsupported' ? 'This browser has no service worker, so the app cannot update itself here.'
+    : 'Beau never updates itself mid-session. It only changes when you ask.'
+  return (
+    <Page title="Updates">
+      <Group footer={note}>
+        <Row label="Running version" value={APP_VERSION} accentValue />
+        <ButtonRow label={label[status.state]} primary={status.state === 'ready'} disabled={status.state === 'checking' || status.state === 'unsupported'}
+                   onPress={() => (status.state === 'ready' ? void applyPendingUpdate() : void checkForUpdate())} />
+      </Group>
+      <Group footer="Throws away the app's cached files and reloads from the server. Your training data is not a cache and is kept.">
+        <ButtonRow label="Reload latest" onPress={() => void forceReload()} />
+      </Group>
+    </Page>
+  )
+}
+
+function AboutPage() {
+  return (
+    <Page title="About" subtitle="Adaptive strength training that stays on your phone.">
+      <Group header="Four commitments">
+        <Row label="Beau proposes; you decide" sub="Every session is a proposal. Swap or reject anything; each reason teaches it." />
+        <Row label="Everything stays on this device" sub="No account, no server, no telemetry." />
+        <Row label="Every number explains itself" sub="A weight says why. A recovery figure says which sets caused it." />
+        <Row label="Train the body you can understand" sub="The anatomy that plans your training is the anatomy you can study." />
+      </Group>
+      <Group header="Status" footer="The engine is complete and tested. The anatomy library is unverified draft content, marked as such wherever it appears. Do not study from it for an exam yet.">
+        <Row label="Version" value={APP_VERSION} accentValue />
+      </Group>
+    </Page>
   )
 }

@@ -16,13 +16,14 @@ a watchOS companion are the reasons this belongs on the platform.
 
 | Path | |
 | --- | --- |
-| `docs/data-model.md` | The training model. Start here. |
+| `docs/philosophy.md` | Why the app is shaped the way it is. Start here. |
+| `docs/data-model.md` | The training model. |
 | `docs/anatomy-model.md` | The anatomy library and learning mode |
 | `src/core/` | Pure engine types and logic — no DOM, no storage, no framework |
 | `src/core/movements/` | 93 curated movements → 547 variants, plus the coverage report |
 | `src/core/equipment/` | Equipment catalog and load quantisation |
 | `src/core/engine/` | Fatigue, progression, generation — 45 tests and an 8-week simulation |
-| `src/app/` | The PWA: Today (review/swap/reject), Plan, Learn, History, Settings |
+| `src/app/` | The PWA: Today, Progress, Learn, Settings — iOS-style grouped lists and pushed pages |
 | `src/core/anatomy/` | 167 muscles, all 206 bones, 222 landmarks, 59 nerves, 19 joints |
 | `src/core/learn/` | Card generation and FSRS scheduling |
 | `data/` | Vendored exercise dataset and images ([provenance](data/README.md)) |
@@ -44,10 +45,12 @@ Design and data groundwork. No app yet.
 - [x] Fatigue and progression engine
 - [x] Workout generation
 - [x] Logging UI, rest timer with anatomy cards, service worker, export/import
-- [x] Today as a reviewable proposal: swap by similarity, reject with a reason that teaches the app
-- [x] Plan: training days, per-day focus and duration, split templates, volume presets
+- [x] Today as a reviewable proposal: tap an exercise for why, swap by similarity, reject with a reason that teaches the app
+- [x] Setup phase: you, your week, your gym, your lifts — anchor weights seed progression so day one is not a cold start
+- [x] Progress: recovery (with its reasoning), weekly volume vs target, exercise trends, session history
+- [x] Plan under Settings: days, per-day focus and duration, split templates, volume presets
 - [x] Learn: browse 167 muscles and 206 bones, FSRS study mode
-- [ ] Ask for a starting weight at onboarding instead of calibrating for weeks
+- [x] iOS-style UI kit: inset grouped lists, disclosure rows, per-tab navigation stacks wired to browser history
 - [ ] Charts, exercise swapping, multi-gym
 
 ## Running it
