@@ -22,6 +22,7 @@ a watchOS companion are the reasons this belongs on the platform.
 | `src/core/movements/` | 93 curated movements → 547 variants, plus the coverage report |
 | `src/core/equipment/` | Equipment catalog and load quantisation |
 | `src/core/engine/` | Fatigue, progression, generation — 45 tests and an 8-week simulation |
+| `src/app/` | The PWA: IndexedDB, screens, service worker, export |
 | `src/core/anatomy/` | 167 muscles, all 206 bones, 222 landmarks, 59 nerves, 19 joints |
 | `src/core/learn/` | Card generation and FSRS scheduling |
 | `data/` | Vendored exercise dataset and images ([provenance](data/README.md)) |
@@ -42,10 +43,26 @@ Design and data groundwork. No app yet.
 - [x] Equipment catalog with plate maths and stack quantisation
 - [x] Fatigue and progression engine
 - [x] Workout generation
-- [ ] Logging UI, service worker, export
+- [x] Logging UI, rest timer with anatomy cards, service worker, export/import
+- [ ] Ask for a starting weight at onboarding instead of calibrating for weeks
+- [ ] Charts, exercise swapping, multi-gym
+
+## Running it
 
 ```sh
 npm install
+npm run dev         # the app, at http://localhost:5173/Beau/
+```
+
+Deployed to GitHub Pages on every push: **https://rivirside.github.io/Beau/**
+Open it on your phone and add it to the home screen — it installs as a
+full-screen app and works entirely offline.
+
+Updates never install themselves mid-session. Settings has a
+**Check for updates** button that fetches a new version and applies it only when
+you say so.
+
+```sh
 npm run check       # typecheck + tests + anatomy graph + movement catalog
 npm run simulate    # 8 weeks of synthetic training, end to end
 npm run catalog     # per-unit coverage: can every unit actually be trained?

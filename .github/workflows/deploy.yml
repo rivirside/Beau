@@ -1,0 +1,51 @@
+name: Deploy PWA
+
+on:
+  push:
+    branches: [main, claude/fitbod-style-app-concept-n7nfgp]
+  workflow_dispatch:
+
+# Only one deploy at a time; never cancel one mid-flight.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # The engine ships to a real training log — a broken build must not deploy.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run validate
+      - run: npm run catalog
+      - run: npm run build
+      # Exercise photos are served from the site but never precached.
+      - run: |
+          mkdir -p dist/exercise-images
+          cp -r data/exercise-images/. dist/exercise-images/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

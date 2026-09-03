@@ -10,14 +10,24 @@
     "simulate": "tsx src/core/engine/simulate.ts",
     "demo": "tsx src/core/demo.ts",
     "demo:learn": "tsx src/core/learn/demo.ts",
-    "check": "npm run typecheck && npm run test && npm run validate && npm run catalog"
+    "check": "npm run typecheck && npm run test && npm run validate && npm run catalog",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
     "@types/node": "^26.4.1",
+    "playwright": "^1.62.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^8.2.2",
+    "vite-plugin-pwa": "^1.3.0"
   },
   "dependencies": {
+    "idb": "^8.0.3",
+    "preact": "^10.29.8",
     "ts-fsrs": "^5.4.2"
   }
 }

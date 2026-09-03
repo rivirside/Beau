@@ -1,0 +1,115 @@
+/* Dark by default: this app is used in a gym, one-handed, between sets. */
+:root {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1e222b;
+  --line: #2a2f3a;
+  --text: #e8eaf0;
+  --muted: #8b93a5;
+  --accent: #6ea8ff;
+  --accent-dim: #27405f;
+  --good: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0; padding: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overscroll-behavior-y: contain;
+}
+
+#app { min-height: 100dvh; display: flex; flex-direction: column; }
+
+main {
+  flex: 1; padding: 16px 16px calc(88px + env(safe-area-inset-bottom));
+  max-width: 640px; width: 100%; margin: 0 auto;
+}
+
+h1 { font-size: 22px; margin: 8px 0 4px; letter-spacing: -0.01em; }
+h2 { font-size: 15px; margin: 24px 0 8px; color: var(--muted); font-weight: 600;
+     text-transform: uppercase; letter-spacing: 0.06em; }
+p { margin: 8px 0; }
+.muted { color: var(--muted); font-size: 14px; }
+.tiny { font-size: 12px; color: var(--muted); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+}
+.card.tight { padding: 10px 12px; }
+
+button {
+  font: inherit; color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  cursor: pointer; min-height: 46px;
+}
+button:active { transform: scale(0.985); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #0b1020;
+                 font-weight: 650; }
+button.ghost { background: transparent; }
+button.danger { color: var(--bad); border-color: #4a2530; background: transparent; }
+button:disabled { opacity: 0.45; cursor: default; }
+button.wide { width: 100%; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.spread { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+
+input, select {
+  font: inherit; color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%;
+  min-height: 46px;
+}
+input[type=number] { -moz-appearance: textfield; }
+label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; }
+.field { margin-bottom: 12px; }
+
+nav {
+  position: fixed; bottom: 0; left: 0; right: 0; display: flex;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px); border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+nav button {
+  flex: 1; background: none; border: none; border-radius: 0; padding: 10px 4px 12px;
+  color: var(--muted); font-size: 11px; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; min-height: 0;
+}
+nav button.active { color: var(--accent); }
+nav .glyph { font-size: 19px; line-height: 1; }
+
+.pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px;
+        background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); }
+.pill.on { background: var(--accent); color: #0b1020; border-color: var(--accent);
+           font-weight: 600; }
+
+.bar { height: 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--good); }
+
+.set-row { display: grid; grid-template-columns: 26px 1fr 1fr 1fr 46px; gap: 6px;
+           align-items: center; margin-bottom: 6px; }
+.set-row input { text-align: center; padding: 10px 4px; }
+.set-row .n { color: var(--muted); font-size: 13px; text-align: center; }
+.set-row.done input { opacity: 0.55; }
+
+.timer { font-variant-numeric: tabular-nums; font-size: 40px; font-weight: 300;
+         letter-spacing: -0.02em; text-align: center; }
+
+.sheet {
+  position: fixed; inset: 0; background: rgba(6,8,12,0.72); z-index: 50;
+  display: flex; align-items: flex-end; backdrop-filter: blur(3px);
+}
+.sheet > div {
+  background: var(--surface); width: 100%; max-width: 640px; margin: 0 auto;
+  border-radius: 16px 16px 0 0; padding: 18px 16px calc(20px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line); max-height: 88dvh; overflow-y: auto;
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.center { text-align: center; }
+.divider { height: 1px; background: var(--line); margin: 16px 0; }
